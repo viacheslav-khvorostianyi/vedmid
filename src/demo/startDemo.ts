@@ -25,12 +25,13 @@ export async function startDemo() {
   });
 
   if (isFirstVisit()) {
-    markStarted();
     const session = demoSession(DEMO_PEOPLE[getRole()].email);
-    await supabase.auth.setSession({
+    const { error } = await supabase.auth.setSession({
       access_token: session.access_token,
       refresh_token: session.refresh_token,
     });
+    // Only a successful sign-in counts; otherwise the next visit tries again.
+    if (!error) markStarted();
   }
   return DemoBar;
 }
