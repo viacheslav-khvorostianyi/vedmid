@@ -3,10 +3,12 @@ import { emptyState, type DemoState } from './server';
 
 // Demo data lives only in this browser. Every access is guarded: storage can be blocked (private mode).
 
+// `started` is versioned: v1 could be set by a failed first sign-in (Safari mixed-content bug), so browsers that
+// saw it get one fresh automatic sign-in.
 const KEYS = {
   state: 'vedmid-demo:state',
   role: 'vedmid-demo:role',
-  started: 'vedmid-demo:started',
+  started: 'vedmid-demo:started:v2',
 } as const;
 
 function read(key: string): string | null {
