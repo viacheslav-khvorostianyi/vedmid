@@ -26,7 +26,8 @@
     "test:coverage": "vitest run --coverage",
     "demo": "vite --mode demo --port=3000 --host=0.0.0.0",
     "demo:build": "vite build --mode demo",
-    "test:demo": "npm run demo:build -- --base=/vedmid/ && playwright test -c playwright.demo.config.ts"
+    "test:demo": "npm run demo:build -- --base=/vedmid/ && playwright test -c playwright.demo.config.ts",
+    "test:demo:live": "DEMO_ORIGIN=https://viacheslav-khvorostianyi.github.io playwright test -c playwright.demo.config.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.109.0",
