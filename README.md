@@ -28,7 +28,7 @@ The demo runs the real app against a fake backend in the browser (a Mock Service
 `npm run demo:build` produces a static demo in `dist-demo/` that can be hosted anywhere; the live demo above is deployed from `main` automatically. Normal builds contain no demo code.
 
 ## Run locally
-Requirements: Node.js 20+, Docker (for local Supabase), [Supabase CLI](https://supabase.com/docs/guides/cli).
+Requirements: Node.js 24 LTS (see `.nvmrc`; e.g. `nvm use`), Docker (for local Supabase), [Supabase CLI](https://supabase.com/docs/guides/cli).
 
 ```bash
 npm install
