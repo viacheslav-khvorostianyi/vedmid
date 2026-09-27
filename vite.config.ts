@@ -50,6 +50,9 @@ export default defineConfig(({ mode }) => {
       include: ['src/**/*.test.{ts,tsx}', 'supabase/**/*.test.ts'],
       exclude: ['src/legacy/**', 'node_modules/**'],
       css: false,
+      // Must stay well above Testing Library's asyncUtilTimeout (5 s, src/test/setup.ts): lazy views load slowly
+      // under coverage on CI runners, and a findBy* wait must not use up the whole test.
+      testTimeout: 15_000,
       coverage: {
         provider: 'v8',
         include: ['src/**/*.{ts,tsx}'],
