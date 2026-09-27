@@ -1,0 +1,11 @@
+dist
+dist-demo
+coverage
+playwright-report
+test-results
+package-lock.json
+src/legacy
+src/data
+*.md
+*.sql
+*.pdf

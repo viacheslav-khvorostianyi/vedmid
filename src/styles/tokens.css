@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Open+Sans:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+@source not '../legacy';
+
+/* Design tokens — docs/DESIGN.md §2. Components use these via Tailwind classes only (bg-green, border-line, …). */
+@theme {
+  --color-bg: #383838;
+  --color-bg-deep: #2b2c2b;
+  --color-bg-raised: #424342;
+  --color-green: #476e4c;
+  --color-green-hi: #548059;
+  --color-line: #5be35b;
+  --color-line-soft: rgb(91 227 91 / 0.45);
+  --color-line-faint: rgb(91 227 91 / 0.18);
+  --color-text: #ffffff;
+  --color-muted: #9a9a9a;
+  --color-lockup: #a8a8a8; /* «ПРОСТО ЛІС» wordmark */
+  --color-on-green: #2e2e2e;
+  --color-on-green-strong: #1f2a20;
+  --color-on-green-soft: #a9bfaa;
+  --color-search-ph: #8fb293;
+  --color-warn-bg: #6e5846;
+  --color-warn: #ffa766;
+  --color-danger: #e5484d;
+
+  --font-sans: 'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-ui: 12px;
+  --breakpoint-desk: 1024px;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-line);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background-color: var(--color-green);
+    color: var(--color-text);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
