@@ -26,6 +26,7 @@ npm run lint           # tsc --noEmit && eslint .
 npm run test           # vitest run (unit + DB tests)
 npm run test:coverage  # with coverage; pure engines have 100% thresholds
 npm run test:e2e       # playwright test (projects: mobile, desktop); first run: npx playwright install chromium
+npm run test:demo      # build the demo for /vedmid/ and smoke-test it (as deployed to Pages)
 npm run format         # prettier --write .
 npm run build          # vite build
 supabase start         # local Postgres/Auth/Storage (Docker)
@@ -87,6 +88,13 @@ docs/         ARCHITECTURE, DESIGN, BACKLOG, agents/, adr/
 - Game logic lives in pure engines (`features/games/engines/*.ts`, 100% coverage) with injected `rng`. Components hold one `useReducer` per game, and «ще раз» remounts the game with a new `key`.
 - Record answers in event handlers, not effects, so StrictMode can't double-count. The exception is a quiz timeout, which comes from the reducer and is recorded once per question from state. `useGameRecording` saves `finish_game` once when the game ends.
 - Route handles: `hideNav` (mobile full-screen) and `noSectionHotkeys` (the page uses 1–4 itself). Both are set on `/games/:mode`.
+
+## CI/CD (GitHub Actions)
+- **`ci.yml`** runs on every PR and push to `main`. Job `checks`: lint, `format:check`, `test:coverage` (unit + DB tests + coverage gate), seed dry-run, build. Job `e2e`: Playwright, mobile and desktop. `main` is protected: both jobs must pass, and there is no force-push.
+- **`demo-pages.yml`** runs after green CI on `main`. It builds the demo for `/vedmid/`, runs `npm run test:demo` (a smoke test of the built demo) and deploys to GitHub Pages.
+- **`deploy-production.yml`** is skipped until the repo variable `PRODUCTION_ENABLED=true` and the secrets exist. It pushes Supabase migrations and the Edge Function, then deploys to Vercel (`vercel.json` holds the SPA rewrite and security headers).
+- Workflow: branch from `main`, open a PR, merge once green (squash). Use Conventional Commits with the ticket ID.
+- The app must work under a base path (`import.meta.env.BASE_URL`, `/vedmid/` on Pages). Use router links, or build URLs with `BASE_URL`; never hard-code `/…` in `window.location`.
 
 ## Demo mode
 - `npm run demo` (Vite mode `demo`) serves `/mockServiceWorker.js`. `src/main.tsx` starts `src/demo/startDemo.ts` before rendering. `import.meta.env.VITE_DEMO` is a build-time literal, so normal builds drop all of it.

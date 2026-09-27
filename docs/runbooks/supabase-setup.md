@@ -32,5 +32,15 @@ update public.profiles set role = 'manager' where id = (select id from auth.user
 9. First manager: Authentication → Invite user, then run the SQL from step 1 in the SQL editor.
 10. Upgrade prod to **Pro** before go-live (no auto-pausing, daily backups).
 
-## 3. App environment (Vercel)
+## 3. Turning on production deploys (GitHub Actions)
+`.github/workflows/deploy-production.yml` does nothing until you do the following:
+1. Create the Vercel project (import the GitHub repo; framework Vite). In **Production** env set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Turn off Vercel's own Git auto-deploys (GitHub Actions deploys instead).
+2. Add the repository secrets (Settings → Secrets and variables → Actions):
+   - `SUPABASE_ACCESS_TOKEN`: supabase.com → Account → Access tokens
+   - `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_REF`: of `vedmid-prod`
+   - `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`: from `vercel link` (`.vercel/project.json`)
+3. Optionally add required reviewers to the `production` environment (Settings → Environments).
+4. Add the repository **variable** `PRODUCTION_ENABLED=true`. The next green CI run on `main` deploys: migrations first, then the web app.
+
+## 4. App environment (Vercel)
 `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` per environment (Preview → dev project, Production → prod project).

@@ -52,7 +52,7 @@ export function classifySignInError(error: {
 
 /** Sends a magic link (with a 6-digit code). Never creates accounts: staff are invited. */
 export async function sendMagicLink(email: string, next: string): Promise<SignInErrorKind | null> {
-  const redirect = new URL('/login', window.location.origin);
+  const redirect = new URL(`${import.meta.env.BASE_URL}login`, window.location.origin);
   redirect.searchParams.set('next', next);
   try {
     const { error } = await supabase.auth.signInWithOtp({

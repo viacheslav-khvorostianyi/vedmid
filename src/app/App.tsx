@@ -7,7 +7,10 @@ import QueryProvider from './providers/QueryProvider';
 import { routes } from './router';
 
 export default function App() {
-  const [router] = useState(() => createBrowserRouter(routes));
+  // BASE_URL is '/' normally and '/vedmid/' for the GitHub Pages demo.
+  const [router] = useState(() =>
+    createBrowserRouter(routes, { basename: import.meta.env.BASE_URL.replace(/\/$/, '') || '/' }),
+  );
   return (
     <QueryProvider>
       <AuthProvider>

@@ -21,7 +21,7 @@ export async function startDemo() {
   await worker.start({
     onUnhandledRequest: 'bypass',
     quiet: true,
-    serviceWorker: { url: '/mockServiceWorker.js' },
+    serviceWorker: { url: `${import.meta.env.BASE_URL}mockServiceWorker.js` },
   });
 
   if (isFirstVisit()) {

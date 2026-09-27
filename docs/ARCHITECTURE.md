@@ -205,6 +205,12 @@ Seeding: `supabase/seed.ts` (run with `tsx`) imports `menuData` from `src/data/m
 - **PWA:** `vite-plugin-pwa` in `generateSW` mode. It precaches the app shell and uses runtime `StaleWhileRevalidate` for `*.supabase.co/storage/v1/object/public/dish-photos/*` (max 300 entries). The manifest has name «Ведмідь», short_name «Ведмідь», `theme_color #383838`, `background_color #383838` and the bear icon at 192/512 plus a maskable version.
 
 ### 4.9 CI/CD
+**Implemented** (`.github/workflows/`, repo `viacheslav-khvorostianyi/vedmid`):
+- `ci.yml`: jobs `checks` (lint, format, unit + PGlite DB tests with coverage gate, seed dry-run, build) and `e2e` (Playwright, mobile + desktop). Required on `main`.
+- `demo-pages.yml`: after green CI on `main`, builds and smoke-tests the demo and deploys it to https://viacheslav-khvorostianyi.github.io/vedmid/.
+- `deploy-production.yml`: Supabase `db push` + Edge Function, then Vercel. Gated by the repo variable `PRODUCTION_ENABLED` and the `production` environment.
+
+The original plan follows. It is kept for reference; the MSW-mocked PR runs are covered by the Playwright route mocks.
 GitHub Actions `ci.yml` on PR: `npm ci` → `npm run lint` (tsc + eslint) → `npm run test` (vitest) → `npm run build` → `npx playwright test` (projects `mobile` = Pixel 7 and `desktop` = 1440×900) against `vite preview` with a mocked Supabase (MSW). On `main`: all of the above, then `supabase db push` (secret `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`), then Vercel production deploy (Git integration).
 Branching: trunk-based, short-lived feature branches, squash merge, Conventional Commits.
 
