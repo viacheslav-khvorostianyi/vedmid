@@ -31,8 +31,9 @@ export default defineConfig(({ mode }) => {
     define: {
       'import.meta.env.VITE_DEMO': JSON.stringify(demo ? 'true' : 'false'),
       ...(demo && {
-        // Never contacted: the demo service worker answers every request to this origin.
-        'import.meta.env.VITE_SUPABASE_URL': JSON.stringify('http://demo.supabase.localhost'),
+        // Never contacted: the demo service worker answers every request to this origin. It must be https:
+        // Safari blocks http requests from an https page (mixed content) before the service worker sees them.
+        'import.meta.env.VITE_SUPABASE_URL': JSON.stringify('https://demo-supabase.vedmid.invalid'),
         'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify('demo-anon-key'),
       }),
     },

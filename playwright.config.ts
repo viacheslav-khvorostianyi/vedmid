@@ -15,6 +15,8 @@ export default defineConfig({
   },
   projects: [
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
+    // Safari/WebKit behaves differently from Chromium on phones; iPhones are a large share of staff devices.
+    { name: 'iphone', use: { ...devices['iPhone 14'] } },
     { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
   ],
   webServer: {

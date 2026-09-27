@@ -34,8 +34,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install browsers (Chromium + WebKit for iPhone)
+        run: npx playwright install --with-deps chromium webkit
       - name: Build the demo for /vedmid/ and smoke-test it
         run: npm run test:demo
       - name: SPA fallback for deep links
@@ -46,3 +46,21 @@ jobs:
           path: dist-demo
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Some problems only show up on the real https site (e.g. Safari blocking mixed content), so test it live.
+  verify-live:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Smoke-test the live demo (Android, iPhone, desktop)
+        run: npm run test:demo:live
