@@ -1,5 +1,9 @@
 # Ведмідь
 
+[![CI](https://github.com/viacheslav-khvorostianyi/vedmid/actions/workflows/ci.yml/badge.svg)](https://github.com/viacheslav-khvorostianyi/vedmid/actions/workflows/ci.yml)
+
+**Live demo:** https://viacheslav-khvorostianyi.github.io/vedmid/ (no backend needed; see «demo mode» below)
+
 Knowledge base and training app for the waiters of the restaurant «Просто ЛІС»: menu lookup (composition, allergens, pairing, sales phrase), flashcards, games and profile.
 Mobile-first PWA with a separate desktop layout. Backend: Supabase.
 
@@ -21,7 +25,7 @@ npm install
 npm run demo        # http://localhost:3000, signed in automatically
 ```
 The demo runs the real app against a fake backend in the browser (a Mock Service Worker answers every Supabase request), using the real 197-item menu. XP, streaks, flashcard boxes and achievements follow the same rules as the server, and progress is saved in this browser only. Use the «демо» button (bottom right) to switch between waiter and manager or reset the demo data. After «вийти», sign in with any email and any 6 digits as the code.
-`npm run demo:build` produces a static demo in `dist-demo/` that can be hosted anywhere. Normal builds contain no demo code.
+`npm run demo:build` produces a static demo in `dist-demo/` that can be hosted anywhere; the live demo above is deployed from `main` automatically. Normal builds contain no demo code.
 
 ## Run locally
 Requirements: Node.js 20+, Docker (for local Supabase), [Supabase CLI](https://supabase.com/docs/guides/cli).

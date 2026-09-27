@@ -21,6 +21,15 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "e2e", "supabase", "scripts", "vite.config.ts", "playwright.config.ts"],
+  "include": [
+    "src",
+    "e2e",
+    "supabase",
+    "scripts",
+    "vite.config.ts",
+    "playwright.config.ts",
+    "e2e-demo",
+    "playwright.demo.config.ts"
+  ],
   "exclude": ["src/legacy", "supabase/functions/*/index.ts", "node_modules", "dist"]
 }

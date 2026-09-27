@@ -104,7 +104,7 @@ Notes:
 | ID | Ticket | Owner | Acceptance criteria |
 |---|---|---|---|
 | E8-1 | PWA | FM | `vite-plugin-pwa` per ARCHITECTURE §4.8. Installable on Android/iOS. Offline: the menu and cached photos open with the network off |
-| E8-2 | CI/CD | BE | `.github/workflows/ci.yml` per §4.9, with a migration deploy on main. Vercel project with SPA rewrite and security headers (`vercel.json`) |
+| E8-2 | CI/CD — ✅ CI, Pages demo and the gated production workflow are done (2026-09-27); production turns on via the runbook | BE | `.github/workflows/ci.yml` per §4.9, with a migration deploy on main. Vercel project with SPA rewrite and security headers (`vercel.json`) |
 | E8-3 | Observability | FM | Sentry (errors, release = SHA, PII scrubbed), Vercel Analytics |
 | E8-4 | Backups | BE | Supabase Pro backups enabled or a weekly `pg_dump` workflow; restore tested once on dev |
 | E8-5 | E2E + a11y suite | QA | Playwright specs per [qa.md](agents/qa.md) pass in both projects; axe finds no serious/critical issues; Lighthouse mobile ≥ 90 perf & a11y on `/menu` |

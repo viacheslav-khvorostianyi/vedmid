@@ -58,7 +58,7 @@ export default function DemoBar() {
             className="self-start text-xs text-warn underline"
             onClick={async () => {
               resetDemo();
-              await reloadFresh('/menu');
+              await reloadFresh(`${import.meta.env.BASE_URL}menu`);
             }}
           >
             скинути демо-дані

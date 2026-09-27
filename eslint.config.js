@@ -59,7 +59,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['e2e/**/*.ts', 'supabase/**/*.ts', 'scripts/**/*.mjs', '*.config.{js,ts}'],
+    files: ['e2e/**/*.ts', 'e2e-demo/**/*.ts', 'supabase/**/*.ts', 'scripts/**/*.mjs', '*.config.{js,ts}'],
     languageOptions: { globals: globals.node },
     // Playwright fixtures call `use()`, which is not React's hook.
     rules: { 'react-hooks/rules-of-hooks': 'off' },
