@@ -14,7 +14,7 @@ Instructions for AI coding agents and human developers working in this repo. Rea
 | `new_design.pdf` | Original mobile mockups (menu, detail, flashcard) |
 
 ## Stack
-React 19 · TypeScript 5.8 (strict) · Vite 6 · Tailwind CSS 4 (`@theme` tokens) · react-router 7 · TanStack Query 5 · supabase-js 2 · motion · lucide-react · zod · Vitest + Testing Library · Playwright · vite-plugin-pwa.
+Node 24 LTS (`.nvmrc`, used by CI) · React 19 · TypeScript 5.8 (strict) · Vite 6 · Tailwind CSS 4 (`@theme` tokens) · react-router 7 · TanStack Query 5 · supabase-js 2 · motion · lucide-react · zod · Vitest + Testing Library · Playwright · vite-plugin-pwa.
 **Do not add** state libraries (Redux, Zustand), UI kits (MUI, shadcn), CSS-in-JS, or AI SDKs without an ADR in `docs/adr/`.
 
 ## Commands
