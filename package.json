@@ -75,5 +75,9 @@
     "eslint-plugin-jsx-a11y": {
       "eslint": "$eslint"
     }
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "msw": true
   }
 }
