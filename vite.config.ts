@@ -5,7 +5,7 @@ import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import { defineConfig, type Plugin } from 'vite';
 
-const MSW_WORKER = path.resolve(__dirname, 'node_modules/msw/lib/mockServiceWorker.js');
+const MSW_WORKER = path.resolve(import.meta.dirname, 'node_modules/msw/lib/mockServiceWorker.js');
 
 /** Demo mode only: serves (dev) or emits (build) the MSW service worker at /mockServiceWorker.js. */
 function demoWorker(): Plugin {
@@ -40,7 +40,7 @@ export default defineConfig(({ mode }) => {
     build: { outDir: demo ? 'dist-demo' : 'dist' },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, 'src'),
+        '@': path.resolve(import.meta.dirname, 'src'),
       },
     },
     test: {
