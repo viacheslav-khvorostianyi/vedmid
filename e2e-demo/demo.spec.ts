@@ -15,7 +15,7 @@ test('first visit signs in automatically and opens the menu', async ({ page }) =
   await expect(page.getByRole('button', { name: /^демо · офіціант/ })).toBeVisible();
 });
 
-test('all 197 menu items are reachable', async ({ page, isMobile }) => {
+test('all 292 menu items are reachable', async ({ page, isMobile }) => {
   test.skip(isMobile, 'counted from the desktop subcategory list');
   await page.goto(BASE + 'menu');
   let total = 0;
@@ -27,7 +27,7 @@ test('all 197 menu items are reachable', async ({ page, isMobile }) => {
       .allTextContents();
     total += counts.reduce((sum, n) => sum + Number(n), 0);
   }
-  expect(total).toBe(197);
+  expect(total).toBe(292);
 });
 
 test('deep links work under the base path', async ({ page }) => {
@@ -37,12 +37,12 @@ test('deep links work under the base path', async ({ page }) => {
 
 test('flashcard progress is kept across reloads', async ({ page }) => {
   await page.goto(BASE + 'cards?c=spirits');
-  await expect(page.getByText('картка 1 з 27')).toBeVisible();
+  await expect(page.getByText('картка 1 з 29')).toBeVisible();
   await page.getByRole('button', { name: 'знаю', exact: true }).click();
-  await expect(page.getByText('картка 2 з 27')).toBeVisible();
+  await expect(page.getByText('картка 2 з 29')).toBeVisible();
   await page.waitForTimeout(300);
   await page.reload();
-  await expect(page.getByText('картка 1 з 26')).toBeVisible();
+  await expect(page.getByText('картка 1 з 28')).toBeVisible();
 });
 
 test('the demo bar switches to the manager role', async ({ page }) => {

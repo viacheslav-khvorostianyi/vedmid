@@ -2,7 +2,7 @@ import type { SeedCategory, SeedMenuItem } from '../../src/data/types';
 import { menuItemInputSchema, type MenuItemInput } from '../../src/features/manager/schema';
 import type { TablesInsert } from '../../src/lib/db.types';
 import type { SeedGuestScenario } from './guestScenarios';
-import { CHOICEQR_ITEMS } from './choiceqrMenu';
+import { CHOICEQR_ITEMS, CHOICEQR_NEW_ITEMS } from './choiceqrMenu';
 import { STOCK_PHOTO_ITEMS, STOCK_PHOTOS } from './stockPhotos';
 
 /** Mirrors the ids seeded into public.categories by 0001_init.sql. */
@@ -20,9 +20,16 @@ export const stockPhotoPath = (key: string) => `stock/${key}.webp`;
 /** Storage path of the restaurant's own photo (from its online menu) in the dish-photos bucket. */
 export const ownPhotoPath = (legacyId: string) => `own/${legacyId}.webp`;
 
+const OWN_PHOTOS = new Set([
+  ...Object.entries(CHOICEQR_ITEMS)
+    .filter(([, item]) => item.photo)
+    .map(([id]) => id),
+  ...CHOICEQR_NEW_ITEMS.filter((item) => item.photo).map((item) => item.id),
+]);
+
 /** The restaurant's own photo wins over an illustrative stock photo, which wins over none. */
 function photo(legacyId: string) {
-  if (CHOICEQR_ITEMS[legacyId]?.photo) return { photoPath: ownPhotoPath(legacyId), photoCredit: null };
+  if (OWN_PHOTOS.has(legacyId)) return { photoPath: ownPhotoPath(legacyId), photoCredit: null };
   const key = STOCK_PHOTO_ITEMS[legacyId];
   const credit = key ? STOCK_PHOTOS[key] : undefined;
   return key && credit
@@ -57,7 +64,28 @@ export const optional = (value: string | undefined): string | null =>
 const subKey = (categoryId: number, name: string) => `${categoryId}:${name}`;
 
 /** Turns the legacy static data into validated DB-ready rows. Throws listing every invalid item. */
-export function buildSeed(menu: readonly SeedMenuItem[], scenarios: readonly SeedGuestScenario[]): SeedPlan {
+/**
+ * Items that are only on the restaurant's online menu (scripts/choiceqr/sync.ts). Their training fields start
+ * empty: managers fill in the anchor, sales phrase and allergens in the app.
+ */
+export const SITE_ONLY_ITEMS: SeedMenuItem[] = CHOICEQR_NEW_ITEMS.map((item) => ({
+  id: item.id,
+  category: item.category,
+  subcategory: item.subcategory,
+  title: item.title,
+  anchor: '',
+  ingredients: item.ingredients ?? '',
+  sales: '',
+  pairing: item.pairing,
+  grapeVarieties: item.grapeVarieties,
+  sweetness: item.sweetness,
+}));
+
+export function buildSeed(
+  legacy: readonly SeedMenuItem[],
+  scenarios: readonly SeedGuestScenario[],
+): SeedPlan {
+  const menu = [...legacy, ...SITE_ONLY_ITEMS];
   const subcategories = new Map<string, SeedSubcategory>();
   const perSubCount = new Map<string, number>();
   const items: SeedItem[] = [];

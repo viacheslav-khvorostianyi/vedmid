@@ -2,7 +2,8 @@
 // Fuzzy matching proposed candidates; every pair was checked. Dishes whose recipe changed on the site
 // (борщ з гречаним хлібом, паштет з курячих сердець, вареники з томленою яловичиною…) are mapped on purpose:
 // the site's text wins. Wines sold by the glass and by the bottle point at one of the two listings.
-// Not on the site, so left as they are (53): kid-1, kid-6, kid-8, salad-1, hot-dish-8, hot-dish-9, grill-3, side-2, side-4, side-5, wine-4, wine-8, wine-9, wine-12, wine-13, wine-14, wine-16, wine-17, wine-18, wine-21, wine-23, wine-24, wine-28, wine-31, wine-32, cocktail-3, cocktail-5, cocktail-7, cocktail-10, cocktail-12, classic-14, bar-1, bar-5, lim-2, lim-3, lim-4, tea-1, tea-2, tea-3, tea-4, tea-5, tea-6, tea-7, shake-1, beer-ba-1, beer-cr-1, beer-cr-2, cider-1, cider-4, sp-3, sp-19, sp-22, sp-23.
+// Some wines are spelled in Latin on the site («Citronniy Magaracha» = Цитронний магарача, «Rhyolite» = Ріоліт).
+// Not on the site, so left as they are (45): kid-1, kid-6, kid-8, salad-1, hot-dish-8, hot-dish-9, grill-3, side-2, side-4, side-5, wine-8, wine-9, wine-14, wine-23, wine-28, wine-31, wine-32, cocktail-3, cocktail-5, cocktail-7, cocktail-10, cocktail-12, classic-14, bar-1, bar-5, lim-2, lim-3, lim-4, tea-1, tea-2, tea-3, tea-4, tea-5, tea-6, tea-7, shake-1, beer-ba-1, beer-cr-1, beer-cr-2, cider-1, cider-4, sp-3, sp-19, sp-22, sp-23.
 export const CHOICEQR_MAPPING: Record<string, string> = {
   'kid-2': 'kartoplyane-pyure-z-kuryachimi-frikadelkami',
   'kid-3': 'vareniki-z-vishnyami',
@@ -56,15 +57,23 @@ export const CHOICEQR_MAPPING: Record<string, string> = {
   'wine-1': 'vino-igriste-grand-admiral-brut-natur-rose-46-parallel',
   'wine-2': 'vino-igriste-el-capitan-46-parallel',
   'wine-3': 'vino-igriste-el-capitan-rose-46-parallel',
+  'wine-4': 'vino-igriste-suholimanske-frumushika-nova',
   'wine-5': 'vino-igriste-biser-kolonist',
   'wine-6': 'white-blend-biologist',
   'wine-7': 'shipuchka-enkowinery',
   'wine-10': 'gewurztraminer-chara-garra-929',
   'wine-11': 'zweigelt-rose-chara-garra',
+  'wine-12': 'sauvignon-blanc-chara-garra',
+  'wine-13': 'traminer-chara-garra',
   'wine-15': 'molfar-yanchinski-pagorbi',
+  'wine-16': 'citronniy-magaracha-frumushika-nova',
+  'wine-17': 'renaissance-biologist',
+  'wine-18': 'barbaryska-rkatsiteli-bohdan-s',
   'wine-19': 'merlot-rose-vintazh-2024-chara-garra-736',
   'wine-20': 'zweigelt-rose-chara-garra-740',
+  'wine-21': 'rhyolite-sass-k.-winery',
   'wine-22': 'zweigelt-chara-garra',
+  'wine-24': 'saperavi-yanchinski-pagorbi',
   'wine-25': 'axioma-late-harvest-axis-wine',
   'wine-26': 'black-friday-axis-wine',
   'wine-27': 'el-capitan-reserve-merlot-46-parallel',

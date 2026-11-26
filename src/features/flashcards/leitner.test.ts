@@ -1,11 +1,20 @@
 import type { MenuItem } from '@/features/menu/types';
 import { seededRng } from '@/lib/shuffle';
-import { applyAnswer, boxDistribution, buildDeck, dueAt, nextBox, type CardProgress } from './leitner';
+import {
+  applyAnswer,
+  boxDistribution,
+  buildDeck,
+  dueAt,
+  hasStudyText,
+  nextBox,
+  type CardProgress,
+} from './leitner';
 
 const DAY = 24 * 60 * 60 * 1000;
 const NOW = Date.parse('2026-09-27T12:00:00Z');
 const daysAgo = (d: number) => new Date(NOW - d * DAY).toISOString();
-const item = (id: string) => ({ id, title: id }) as MenuItem;
+const item = (id: string) =>
+  ({ id, title: id, ingredients: `${id} склад`, anchor: '', sales: '' }) as MenuItem;
 const ITEMS = ['a', 'b', 'c', 'd', 'e', 'f'].map(item);
 const p = (
   itemId: string,
@@ -71,6 +80,16 @@ describe('buildDeck', () => {
     expect([...one].sort()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
+  it('leaves out items with nothing on the back of the card', () => {
+    const blank = { ...item('g'), ingredients: ' ' } as MenuItem;
+    const salesOnly = { ...item('h'), ingredients: '', sales: 'фраза' } as MenuItem;
+    expect(hasStudyText(blank)).toBe(false);
+    expect(hasStudyText(salesOnly)).toBe(true);
+    const deck = buildDeck([...ITEMS, blank, salesOnly], [], NOW, seededRng(3)).map((i) => i.id);
+    expect(deck).not.toContain('g');
+    expect(deck).toContain('h');
+  });
+
   it('is empty when everything was learned recently', () => {
     expect(buildDeck([item('a')], [p('a', 4, daysAgo(1))], NOW)).toEqual([]);
   });
@@ -100,5 +119,10 @@ describe('boxDistribution', () => {
       p('d', 12, null),
     ];
     expect(boxDistribution(ITEMS, progress)).toEqual({ unseen: 2, boxes: [2, 0, 0, 0, 2] });
+  });
+
+  it('leaves out items with nothing to learn, like buildDeck', () => {
+    const blank = { ...item('g'), ingredients: '' } as MenuItem;
+    expect(boxDistribution([...ITEMS, blank], [])).toEqual({ unseen: 6, boxes: [0, 0, 0, 0, 0] });
   });
 });

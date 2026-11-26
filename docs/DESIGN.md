@@ -121,7 +121,7 @@ Icons: `lucide-react`, stroke 1.6, used sparingly (search, back, lock). No emoji
 ### 5.3 Картки — `/cards`
 **Mobile (PDF p.3):** category chips (+ «усі») → counter «картка N з M» → Flashcard → «не знаю» | «знаю» → swipe hint. No lockup on this screen (per PDF).
 - Tap flips. Swipe right = знаю, swipe left = не знаю (threshold 90px, with card rotation feedback).
-- Deck order: due cards first (Leitner, see ARCHITECTURE §Flashcards), then new cards, shuffled with Fisher–Yates.
+- Deck order: due cards first (Leitner, see ARCHITECTURE §Flashcards), then new cards, shuffled with Fisher–Yates. Items with nothing to learn yet (no composition, anchor or sales phrase) are not in the deck.
 - End of deck: a summary («знаю 18 · повторити 7») with «ще раз» and «лише помилки».
 
 **Desktop:** question and answer faces side by side (answer blurred until `Space`), buttons below, keys `Space` flip, `←` не знаю, `→` знаю. The right drawer shows Leitner box distribution.

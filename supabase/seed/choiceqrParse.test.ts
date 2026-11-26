@@ -1,4 +1,12 @@
-import { cleanTitle, isRenamed, parseDescription, pickIngredients, tidy } from './choiceqrParse';
+import {
+  cleanTitle,
+  isRenamed,
+  listingKeys,
+  listingTitle,
+  parseDescription,
+  pickIngredients,
+  tidy,
+} from './choiceqrParse';
 
 describe('choiceqr parsing', () => {
   it('tidies doubled spaces and spaces before punctuation', () => {
@@ -83,5 +91,32 @@ describe('choiceqr parsing', () => {
     expect(isRenamed('Малиновий лимонад', 'Лимонад Малина')).toBe(false);
     expect(isRenamed('Пепсі (скло)', 'Пепсі')).toBe(false);
     expect(isRenamed('Борщ з пампушкою та салом', 'Борщ з гречаним хлібом та салом')).toBe(true);
+  });
+
+  it('drops the editor leftovers from a listing title', () => {
+    expect(listingTitle('Rhyolite SASS K. Winery Copy')).toBe('Rhyolite SASS K. Winery');
+    expect(listingTitle('Вино ігристе El Capitan 46 Parallel келих')).toBe(
+      'Вино ігристе El Capitan 46 Parallel',
+    );
+    expect(listingTitle('Barbaryska Rkatsiteli Bohdan`s')).toBe("Barbaryska Rkatsiteli Bohdan's");
+  });
+
+  it('matches wine twins by name or description, other drinks by name only', () => {
+    const shared = (a: string[], b: string[]) => a.some((k) => b.includes(k));
+    const desc = 'Виноробня Bohdan`s winery (Поділля)\nСухе рожеве вино.';
+    expect(
+      shared(
+        listingKeys('Barbaryska Rkatsiteli Bohdan`s', desc, true),
+        listingKeys('Barbaryska Rkatsiteli Bohdan`s winery', desc.replace('\n', '  \n'), true),
+      ),
+    ).toBe(true);
+    expect(
+      shared(
+        listingKeys('Бакота Йоханітер', 'Свіже вино', true),
+        listingKeys('Бакота Йоханітер ', 'Інший опис', true),
+      ),
+    ).toBe(true);
+    const beans = 'Зерно: Руанда Гітокі';
+    expect(shared(listingKeys('Флет-вайт', beans, false), listingKeys('Айс Лате', beans, false))).toBe(false);
   });
 });
