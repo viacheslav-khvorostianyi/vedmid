@@ -37,6 +37,10 @@ export const menuItemInputSchema = z.object({
   isActive: z.boolean(),
   sort: z.number().int(),
   photoPath: z.string().max(300).nullable(),
+  // stock-photo attribution; an uploaded photo must reset it to null
+  photoCredit: z
+    .object({ text: z.string().trim().min(1).max(300), url: z.string().url().max(190) })
+    .nullable(),
 });
 
 export type MenuItemInput = z.infer<typeof menuItemInputSchema>;

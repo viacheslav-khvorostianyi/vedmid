@@ -2,6 +2,7 @@ import type { SeedCategory, SeedMenuItem } from '../../src/data/types';
 import { menuItemInputSchema, type MenuItemInput } from '../../src/features/manager/schema';
 import type { TablesInsert } from '../../src/lib/db.types';
 import type { SeedGuestScenario } from './guestScenarios';
+import { STOCK_PHOTO_ITEMS, STOCK_PHOTOS } from './stockPhotos';
 
 /** Mirrors the ids seeded into public.categories by 0001_init.sql. */
 export const CATEGORY_IDS: Record<SeedCategory, number> = {
@@ -11,6 +12,17 @@ export const CATEGORY_IDS: Record<SeedCategory, number> = {
   'Безалкогольні & Пиво': 4,
   'Міцні напої': 5,
 };
+
+/** Storage path of a stock photo in the dish-photos bucket. */
+export const stockPhotoPath = (key: string) => `stock/${key}.webp`;
+
+function stockPhoto(legacyId: string) {
+  const key = STOCK_PHOTO_ITEMS[legacyId];
+  const credit = key ? STOCK_PHOTOS[key] : undefined;
+  return key && credit
+    ? { photoPath: stockPhotoPath(key), photoCredit: credit }
+    : { photoPath: null, photoCredit: null };
+}
 
 export interface SeedSubcategory {
   key: string;
@@ -74,7 +86,7 @@ export function buildSeed(menu: readonly SeedMenuItem[], scenarios: readonly See
       isFinalist: m.isFinalist ?? false,
       isActive: true,
       sort,
-      photoPath: null,
+      ...stockPhoto(m.id),
     });
     if (parsed.success) items.push({ subcategoryKey: key, input: parsed.data });
     else

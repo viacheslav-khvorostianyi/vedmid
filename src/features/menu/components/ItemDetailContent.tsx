@@ -73,8 +73,9 @@ export default function ItemDetailContent({ item, variant, titleAs: Title = 'h1'
     <div className="flex flex-col gap-3.5">
       <Photo
         src={photoUrl(item.photoPath)}
-        alt={`фото подачі: ${item.title}`}
+        alt={item.photoCredit ? `ілюстрація: ${item.title}` : `фото подачі: ${item.title}`}
         aspect={variant === 'stacked' ? 'video' : 'wide'}
+        credit={item.photoCredit}
       />
       <Title className="m-0 font-display text-2xl leading-tight font-bold desk:text-[26px]">
         {item.title}

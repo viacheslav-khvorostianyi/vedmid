@@ -1,8 +1,11 @@
+import { createServer, type Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { setupServer } from 'msw/node';
 import { fetchProfile } from '@/features/auth/api';
 import { fetchCardProgress } from '@/features/flashcards/api';
 import { fetchGuestScenarios } from '@/features/games/api';
 import { fetchMenu } from '@/features/menu/api';
+import { photoUrl } from '@/lib/storage';
 import { buildMenu } from '@/features/menu/model';
 import { fetchAchievements, fetchStats } from '@/features/progress/api';
 import type { StaffRole } from '@/features/auth/context';
@@ -15,21 +18,37 @@ import { DEMO_USER_ID } from './session';
 // The app's real data functions and supabase-js, answered by the demo handlers.
 let state: DemoState = emptyState();
 let role: StaffRole = 'waiter';
+// Stands in for the demo build's static files: photo requests bypass the mocks, so they need a real server.
+let photoBase = '';
+const staticFiles: Server = createServer((req, res) => {
+  if (req.url === '/demo-photos/borscht.webp') res.writeHead(200).end('webp-bytes');
+  else res.writeHead(404).end();
+});
 const server = setupServer(
   ...createDemoHandlers({
     url: import.meta.env.VITE_SUPABASE_URL,
     getState: () => state,
     setState: (s) => (state = s),
     getRole: () => role,
+    get photoBase() {
+      return photoBase;
+    },
   }),
 );
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+beforeAll(async () => {
+  await new Promise<void>((resolve) => staticFiles.listen(0, '127.0.0.1', resolve));
+  photoBase = `http://127.0.0.1:${(staticFiles.address() as AddressInfo).port}/demo-photos/`;
+  server.listen({ onUnhandledRequest: 'error' });
+});
 beforeEach(() => {
   state = emptyState();
   role = 'waiter';
 });
-afterAll(() => server.close());
+afterAll(() => {
+  server.close();
+  staticFiles.close();
+});
 
 describe('demo handlers', () => {
   it('serve the full menu, guest scenarios and achievements', async () => {
@@ -95,5 +114,12 @@ describe('demo handlers', () => {
     expect(ok.error).toBeNull();
     expect(ok.data.session?.user.id).toBe(DEMO_USER_ID);
     await supabase.auth.signOut();
+  });
+
+  it('serve stock photos from the demo build and 404 unknown ones', async () => {
+    const ok = await fetch(photoUrl('stock/borscht.webp')!);
+    expect(ok.headers.get('content-type')).toBe('image/webp');
+    expect(await ok.text()).toBe('webp-bytes');
+    expect((await fetch(photoUrl('stock/nope.webp')!)).status).toBe(404);
   });
 });

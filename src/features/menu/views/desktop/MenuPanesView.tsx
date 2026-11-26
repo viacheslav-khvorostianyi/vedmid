@@ -4,11 +4,10 @@ import { cn } from '@/lib/cn';
 import { useHotkeys } from '@/lib/useHotkeys';
 import DesktopPage from '@/shells/desktop/DesktopPage';
 import ChipRow from '@/ui/ChipRow';
-import ItemCard from '@/ui/ItemCard';
 import SearchInput from '@/ui/SearchInput';
 import SectionTitle from '@/ui/SectionTitle';
-import Tag from '@/ui/Tag';
 import ItemDetailContent from '../../components/ItemDetailContent';
+import MenuItemCard from '../../components/MenuItemCard';
 import { MenuError, MenuLoading } from '../../components/MenuStatus';
 import { useMenu } from '../../hooks/useMenu';
 import { useMenuParams } from '../../hooks/useMenuParams';
@@ -137,13 +136,12 @@ export default function MenuPanesView() {
             <div className="grid grid-cols-2 gap-3">
               {visible.map((item) => (
                 <div key={item.id} id={`card-${item.id}`}>
-                  <ItemCard
-                    title={item.title}
+                  <MenuItemCard
+                    item={item}
                     to={`/menu/${item.id}${params.search}`}
                     selected={item.id === itemId}
                     compact
                     tag={searching ? categoryName.get(item.category) : undefined}
-                    badges={item.isBestseller ? <Tag tone="accent">★ хіт</Tag> : undefined}
                     className="h-full"
                   />
                 </div>

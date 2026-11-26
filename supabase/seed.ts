@@ -2,12 +2,15 @@
 //   npm run db:seed              → writes to SUPABASE_URL with SUPABASE_SERVICE_ROLE_KEY from .env.seed
 //   npm run db:seed -- --dry-run → validates and prints counts, writes nothing
 //   npm run db:seed -- --overwrite → also resets existing rows to the static data (discards manager edits)
+// Stock photos (public/demo-photos) are uploaded to dish-photos/stock/ and set on items that have no photo.
 import { createClient } from '@supabase/supabase-js';
 import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { menuData } from '../src/data/menuData';
 import type { Database } from '../src/lib/db.types';
-import { buildSeed } from './seed/buildSeed';
+import { buildSeed, stockPhotoPath } from './seed/buildSeed';
 import { guestScenarios } from './seed/guestScenarios';
+import { STOCK_PHOTO_ITEMS, STOCK_PHOTOS } from './seed/stockPhotos';
 import { writeSeed, type SeedMode, type SeedWriter } from './seed/writeSeed';
 
 const plan = buildSeed(menuData, guestScenarios);
@@ -23,6 +26,14 @@ console.log(
   `Validated ${plan.items.length} items in ${plan.subcategories.length} subcategories, ${plan.guestScenarios.length} guest scenarios.`,
 );
 console.log('Items per category id:', Object.fromEntries(byCategory));
+
+const photoKeys = Object.keys(STOCK_PHOTOS);
+const missingPhotos = photoKeys.filter((key) => !existsSync(`public/demo-photos/${key}.webp`));
+if (missingPhotos.length) {
+  console.error(`Missing stock photo files in public/demo-photos: ${missingPhotos.join(', ')}`);
+  process.exit(1);
+}
+console.log(`Stock photos: ${photoKeys.length} files for ${Object.keys(STOCK_PHOTO_ITEMS).length} items.`);
 
 if (process.argv.includes('--dry-run')) process.exit(0);
 
@@ -64,3 +75,28 @@ const writer: SeedWriter = {
 
 const written = await writeSeed(plan, writer, mode);
 console.log('Seeded:', written);
+
+// Upload before pointing rows at the files. insert-missing keeps objects that are already there.
+for (const key of photoKeys) {
+  const body = await readFile(`public/demo-photos/${key}.webp`);
+  const { error } = await supabase.storage
+    .from('dish-photos')
+    .upload(stockPhotoPath(key), body, { contentType: 'image/webp', upsert: mode === 'overwrite' });
+  if (error && !/exists/i.test(error.message)) throw error;
+}
+// insert-missing skipped existing rows, so give the stock photo to items that still have none.
+let photosSet = 0;
+for (const key of photoKeys) {
+  const ids = Object.entries(STOCK_PHOTO_ITEMS)
+    .filter(([, k]) => k === key)
+    .map(([legacyId]) => legacyId);
+  const { data, error } = await supabase
+    .from('menu_items')
+    .update({ photo_path: stockPhotoPath(key), photo_credit: { ...STOCK_PHOTOS[key] } })
+    .in('legacy_id', ids)
+    .is('photo_path', null)
+    .select('id');
+  if (error) throw error;
+  photosSet += data.length;
+}
+console.log(`Stock photos: ${photoKeys.length} uploaded, ${photosSet} items without a photo got one.`);

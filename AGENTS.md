@@ -101,6 +101,7 @@ docs/         ARCHITECTURE, DESIGN, BACKLOG, agents/, adr/
 - `src/demo/handlers.ts` answers every Supabase endpoint the app uses. When you add a table query or RPC, add a handler; unknown requests get a 501 that names the endpoint.
 - `src/demo/server.ts` mirrors `record_answer` / `finish_game`. When you change those SQL functions, change this too; `server.test.ts` and `handlers.test.ts` cover it.
 - The seed data (`supabase/seed/`: fixture rows, guest rows, `achievements.ts`) is shared by the unit tests, the e2e fixtures and the demo. `seed.test.ts` checks `achievements.ts` against the migration.
+- Stock photos: `public/demo-photos/{key}.webp` plus the generated manifest `supabase/seed/stockPhotos.ts` (attribution + item → key). The demo serves them for `dish-photos/stock/*`; `npm run db:seed` uploads them. To change them, edit `scripts/photos/queries.ts` and rerun `search.ts` → `download.ts` (see ADR 0001).
 
 ## Data & auth conventions (from E2)
 - `useAuth()` (`features/auth/context.ts`) returns `{ status, session, profile, signOut }`. Protected routes sit under `RequireAuth`; role-gated ones are wrapped in `<RequireRole allow="manager">`.
@@ -109,9 +110,9 @@ docs/         ARCHITECTURE, DESIGN, BACKLOG, agents/, adr/
 - DB tests (`supabase/tests`) run the real migrations in PGlite. Every new table, policy or RPC gets a test there.
 
 ## Design rules
-- Use tokens only (`bg-bg`, `bg-green`, `border-line`, `text-muted`, `font-mono` …). No raw hex values in components, no gradients, glows, `blur`, `animate-bounce`, or emoji in UI chrome.
+- Use tokens only (`bg-bg`, `bg-green`, `border-line`, `text-muted`, `text-accent`, `font-display` …). No raw hex values in components, no gradients, glows, `blur`, `animate-bounce`, or emoji in UI chrome.
 - Active = filled `green`; inactive = 1px `line` outline + `muted` text. Radius is `12px` (`rounded-ui`). Touch targets are ≥ 44px.
-- Section titles and item names are `font-mono`; controls and body text are `font-sans`.
+- Section titles and item names are `font-display` (serif); controls and body text are `font-sans`; `font-mono` only for numbers and key hints. Brass `accent` is rare: bestseller tag, progress, focus ring.
 - All copy is in Ukrainian and lowercase (see DESIGN.md). Copy states what happens («надіслати посилання», toast «Збережено»). Errors say what went wrong and what to do next.
 - Respect `prefers-reduced-motion`. Give every interactive element a visible focus ring. Swipe always has a button equivalent.
 

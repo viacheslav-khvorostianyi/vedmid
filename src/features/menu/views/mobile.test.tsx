@@ -63,7 +63,17 @@ describe('ItemDetailView (mobile)', () => {
     expect(screen.getByRole('heading', { name: 'фраза для продажу' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'цікавий факт' })).toBeInTheDocument();
     expect(screen.getByText('оновлено 26.09.2026')).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: 'ілюстрація: Борщ з пампушкою та салом із чорним часником' }),
+    ).toHaveAttribute('src', expect.stringContaining('dish-photos/stock/borscht.webp'));
+    expect(screen.getByRole('figure')).toHaveTextContent(/ілюстративне фото · .+, CC/);
+  });
+
+  it('keeps the placeholder for an item without a photo', async () => {
+    renderRoute('/menu/item-cold-5');
+    await screen.findByRole('heading', { level: 1, name: /Форшмак/ });
     expect(screen.getByRole('img', { name: /фото подачі/ })).toHaveTextContent('фото подачі');
+    expect(screen.queryByText(/ілюстративне фото/)).not.toBeInTheDocument();
   });
 
   it('shows wine grape, taste profile and producer', async () => {
