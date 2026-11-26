@@ -83,6 +83,7 @@ docs/         ARCHITECTURE, DESIGN, BACKLOG, agents/, adr/
 - Record every answer with `useRecordAnswer()` (`features/progress/hooks.ts`). It calls the `record_answer` RPC (queued offline), updates the `['stats', userId]` cache, and toasts achievements and level-ups. Never compute XP on the client.
 - Flashcard progress is cached under `['progress', userId]`. `useAnswerCard()` updates it optimistically with `applyAnswer()` (`leitner.ts`) before recording.
 - The session deck is fixed when the session mounts. Rebuild it by changing the session's React `key` (filter change, practise-all).
+- Progress restored from an earlier page load (the offline copy, saved ≤100 ms after a change) is re-checked with the server before a deck is built (`isFromEarlierPageLoad`); the progress query sends queued offline answers first. Offline, the restored copy is used.
 
 ## Games conventions (from E5)
 - Game logic lives in pure engines (`features/games/engines/*.ts`, 100% coverage) with injected `rng`. Components hold one `useReducer` per game, and «ще раз» remounts the game with a new `key`.
