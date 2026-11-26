@@ -143,7 +143,7 @@ export default function MenuPanesView() {
                     selected={item.id === itemId}
                     compact
                     tag={searching ? categoryName.get(item.category) : undefined}
-                    badges={item.isBestseller ? <Tag>★ хіт</Tag> : undefined}
+                    badges={item.isBestseller ? <Tag tone="accent">★ хіт</Tag> : undefined}
                     className="h-full"
                   />
                 </div>

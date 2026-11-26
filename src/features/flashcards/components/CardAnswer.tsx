@@ -3,7 +3,7 @@ import type { MenuItem } from '@/features/menu/types';
 function Row({ label, children }: { label: string; children: string }) {
   return (
     <span className="block">
-      <span className="block font-mono text-xs font-bold text-on-green-soft lowercase">{label}</span>
+      <span className="block text-xs font-semibold tracking-wide text-on-green-soft lowercase">{label}</span>
       <span className="block text-[13.5px] leading-snug text-on-green-strong">{children}</span>
     </span>
   );

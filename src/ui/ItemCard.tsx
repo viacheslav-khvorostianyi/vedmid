@@ -27,8 +27,8 @@ export default function ItemCard({
 }: ItemCardProps) {
   const classes = cn(
     'relative flex w-full items-center justify-center rounded-ui border border-line p-[18px] text-center',
-    'font-mono text-sm leading-snug font-bold text-text transition-colors hover:bg-green/20',
-    compact ? 'min-h-24 text-[13px]' : 'min-h-28',
+    'font-display text-[17px] leading-snug font-semibold text-text transition-colors hover:bg-green/20',
+    compact ? 'min-h-24 text-base' : 'min-h-28',
     // room for the badge row so it never covers the title
     !!(tag || badges) && 'pt-9',
     selected && 'bg-green/35',

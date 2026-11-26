@@ -86,7 +86,7 @@ export default function UiGallery() {
         <div className="grid w-full grid-cols-1 gap-3.5 sm:grid-cols-2">
           <ItemCard title="Борщ з пампушкою та салом із чорним часником" />
           <ItemCard title="Бограч з м’ясом та аджикою" selected />
-          <ItemCard title="El Capitan Brut" tag="вино" badges={<Tag>★ хіт</Tag>} compact />
+          <ItemCard title="El Capitan Brut" tag="вино" badges={<Tag tone="accent">★ хіт</Tag>} compact />
           <ItemCard title="Grand Admiral Brut Natur Rose (Виноробня 46parallel, Південний регіон)" compact />
         </div>
       </Section>
@@ -104,7 +104,7 @@ export default function UiGallery() {
           </SegmentedTabs>
         </div>
         <Panel tone="default" className="w-full max-w-sm">
-          Колір тексту з PDF (#2E2E2E) — лише для короткого тексту.
+          Звичайний текст на зеленій панелі (on-green).
         </Panel>
       </Section>
 

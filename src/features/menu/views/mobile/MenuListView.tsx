@@ -10,7 +10,7 @@ import { MIN_QUERY_LENGTH, normalize } from '../../model';
 import type { MenuItem } from '../../types';
 
 function badges(item: MenuItem) {
-  return item.isBestseller ? <Tag>★ хіт</Tag> : undefined;
+  return item.isBestseller ? <Tag tone="accent">★ хіт</Tag> : undefined;
 }
 
 export default function MenuListView() {

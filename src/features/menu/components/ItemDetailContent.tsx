@@ -76,10 +76,12 @@ export default function ItemDetailContent({ item, variant, titleAs: Title = 'h1'
         alt={`фото подачі: ${item.title}`}
         aspect={variant === 'stacked' ? 'video' : 'wide'}
       />
-      <Title className="m-0 font-mono text-base leading-snug font-bold desk:text-[17px]">{item.title}</Title>
+      <Title className="m-0 font-display text-2xl leading-tight font-bold desk:text-[26px]">
+        {item.title}
+      </Title>
       {(item.isBestseller || item.isFinalist || item.anchor) && (
         <div className="flex flex-wrap items-center gap-1.5">
-          {item.isBestseller && <Tag>★ хіт продажів</Tag>}
+          {item.isBestseller && <Tag tone="accent">★ хіт продажів</Tag>}
           {item.isFinalist && <Tag>фіналіст конкурсу</Tag>}
           {item.anchor && <span className="text-[13px] text-muted">«{item.anchor}»</span>}
         </div>

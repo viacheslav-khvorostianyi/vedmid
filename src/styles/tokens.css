@@ -1,29 +1,33 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Open+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=JetBrains+Mono:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 @source not '../legacy';
 
-/* Design tokens — docs/DESIGN.md §2. Components use these via Tailwind classes only (bg-green, border-line, …). */
+/* Design tokens — docs/DESIGN.md §2 («dark forest bistro»). Components use these via Tailwind classes only (bg-green, border-line, …). */
 @theme {
-  --color-bg: #383838;
-  --color-bg-deep: #2b2c2b;
-  --color-bg-raised: #424342;
-  --color-green: #476e4c;
-  --color-green-hi: #548059;
-  --color-line: #5be35b;
-  --color-line-soft: rgb(91 227 91 / 0.45);
-  --color-line-faint: rgb(91 227 91 / 0.18);
-  --color-text: #ffffff;
-  --color-muted: #9a9a9a;
-  --color-lockup: #a8a8a8; /* «ПРОСТО ЛІС» wordmark */
-  --color-on-green: #2e2e2e;
-  --color-on-green-strong: #1f2a20;
-  --color-on-green-soft: #a9bfaa;
-  --color-search-ph: #8fb293;
-  --color-warn-bg: #6e5846;
-  --color-warn: #ffa766;
-  --color-danger: #e5484d;
+  --color-bg: #1e2420;
+  --color-bg-deep: #171c19;
+  --color-bg-raised: #2a322c;
+  --color-green: #3f5e46;
+  --color-green-hi: #8db08f; /* section titles on bg */
+  --color-line: #6e8b6a;
+  --color-line-soft: rgb(110 139 106 / 0.45);
+  --color-line-faint: rgb(110 139 106 / 0.2);
+  --color-text: #f3ebdd;
+  --color-muted: #a79f90;
+  --color-lockup: #c9bfae; /* «ПРОСТО ЛІС» wordmark */
+  --color-accent: #c9a15b; /* brass: hits, progress, focus */
+  --color-on-accent: #1e2420;
+  /* text on green panels is light: dark text on moss fails AA */
+  --color-on-green: #f3ebdd;
+  --color-on-green-strong: #fff8ec;
+  --color-on-green-soft: #c8d4c4;
+  --color-search-ph: #bfcdba;
+  --color-warn-bg: #4a3828;
+  --color-warn: #e3a86a;
+  --color-danger: #e06a5f;
 
-  --font-sans: 'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --radius-ui: 12px;
@@ -49,7 +53,7 @@
     text-wrap: balance;
   }
   :focus-visible {
-    outline: 2px solid var(--color-line);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
   }
   ::selection {

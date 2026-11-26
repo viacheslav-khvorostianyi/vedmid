@@ -74,7 +74,7 @@ export default function MatchGame({ items, onRestart }: Props) {
               aria-pressed={selected}
               className={cn(
                 'flex min-h-20 flex-col items-center justify-center gap-1 rounded-ui border p-3 text-center text-[13.5px] leading-snug transition-colors',
-                tile.kind === 'item' ? 'font-mono font-bold' : 'italic',
+                tile.kind === 'item' ? 'font-display text-[17px] font-bold' : 'italic',
                 matched && 'border-green bg-green text-text',
                 !matched && selected && 'border-line bg-green/35 text-text',
                 !matched && !selected && missed && 'border-warn-bg bg-warn-bg text-warn',

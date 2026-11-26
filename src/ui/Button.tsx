@@ -8,7 +8,7 @@ interface ButtonProps extends ComponentProps<'button'> {
 }
 
 const VARIANTS = {
-  ok: 'bg-green text-text hover:bg-green-hi',
+  ok: 'bg-green text-text hover:brightness-115',
   no: 'bg-warn-bg text-warn hover:brightness-110',
   ghost: 'border border-line text-muted hover:text-text',
 } as const;
