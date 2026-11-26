@@ -30,7 +30,8 @@ export const queryPersister = createAsyncStoragePersister({
     removeItem: (key) => del(key, store),
   },
   key: 'vedmid-query-cache',
-  throttleTime: 1000,
+  // Short, so an answer given right before a reload is saved; offline the restored copy is all there is.
+  throttleTime: 100,
 });
 
 export const PERSIST_MAX_AGE = WEEK;

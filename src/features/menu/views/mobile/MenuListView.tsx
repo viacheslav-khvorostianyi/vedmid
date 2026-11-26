@@ -1,17 +1,11 @@
 import ChipRow from '@/ui/ChipRow';
-import ItemCard from '@/ui/ItemCard';
 import SearchInput from '@/ui/SearchInput';
 import SectionTitle from '@/ui/SectionTitle';
-import Tag from '@/ui/Tag';
+import MenuItemCard from '../../components/MenuItemCard';
 import { MenuError, MenuLoading } from '../../components/MenuStatus';
 import { useMenuSearch, useMenuSections } from '../../hooks/useMenu';
 import { useMenuParams } from '../../hooks/useMenuParams';
 import { MIN_QUERY_LENGTH, normalize } from '../../model';
-import type { MenuItem } from '../../types';
-
-function badges(item: MenuItem) {
-  return item.isBestseller ? <Tag>★ хіт</Tag> : undefined;
-}
 
 export default function MenuListView() {
   const { category, query, search, setCategory, setQuery } = useMenuParams();
@@ -44,12 +38,11 @@ export default function MenuListView() {
               {results.length > 0 ? `знайдено: ${results.length}` : `нічого не знайдено за «${query.trim()}»`}
             </p>
             {results.map((item) => (
-              <ItemCard
+              <MenuItemCard
                 key={item.id}
-                title={item.title}
+                item={item}
                 to={`/menu/${item.id}${search}`}
                 tag={categoryName.get(item.category)}
-                badges={badges(item)}
               />
             ))}
           </>
@@ -70,12 +63,7 @@ export default function MenuListView() {
                 </SectionTitle>
               </div>
               {items.map((item) => (
-                <ItemCard
-                  key={item.id}
-                  title={item.title}
-                  to={`/menu/${item.id}${search}`}
-                  badges={badges(item)}
-                />
+                <MenuItemCard key={item.id} item={item} to={`/menu/${item.id}${search}`} />
               ))}
             </section>
           ))}

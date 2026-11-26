@@ -24,4 +24,10 @@ describe('photoUrl', () => {
     expect(url.pathname).toBe('/storage/v1/render/image/public/dish-photos/item-1/a.webp');
     expect(url.searchParams.get('width')).toBe('800');
   });
+
+  it('points demo photos at the files the demo build ships under its base path', async () => {
+    const { demoPhotoUrl } = await import('./storage');
+    expect(demoPhotoUrl('own/soup-1.webp', '/vedmid/')).toBe('/vedmid/demo-photos/own/soup-1.webp');
+    expect(demoPhotoUrl('stock/borscht.webp', '/')).toBe('/demo-photos/stock/borscht.webp');
+  });
 });

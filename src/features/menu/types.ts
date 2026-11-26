@@ -29,6 +29,13 @@ export interface Producer {
   rawMaterials: string;
 }
 
+export interface PhotoCredit {
+  /** «author, CC BY 2.0» */
+  text: string;
+  /** source page of the photo */
+  url: string;
+}
+
 export interface MenuItem {
   id: string;
   legacyId: string | null;
@@ -49,6 +56,8 @@ export interface MenuItem {
   isBestseller: boolean;
   isFinalist: boolean;
   photoPath: string | null;
+  /** Set for illustrative stock photos; null for the restaurant's own */
+  photoCredit: PhotoCredit | null;
   sort: number;
   isActive: boolean;
   updatedAt: string;

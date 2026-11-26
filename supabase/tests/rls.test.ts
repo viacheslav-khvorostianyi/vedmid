@@ -148,6 +148,21 @@ describe('manager', () => {
     expect(check.rows[0]).toEqual({ updated_by: manager, sales: 'Смак осіннього лісу' });
   });
 
+  it('sets a stock-photo credit only in the {text, url} shape', async () => {
+    const credit = { text: 'Jane Doe, CC BY 2.0', url: 'https://example.org/p/1' };
+    await db.query(`update public.menu_items set photo_credit = $2 where id = $1`, [menu.activeId, credit]);
+    await actAs(db, waiter);
+    const { rows } = await db.query<{ photo_credit: unknown }>(
+      `select photo_credit from public.menu_items where id = $1`,
+      [menu.activeId],
+    );
+    expect(rows[0].photo_credit).toEqual(credit);
+    await actAs(db, manager);
+    await expect(
+      db.query(`update public.menu_items set photo_credit = '{"text": 1}' where id = $1`, [menu.activeId]),
+    ).rejects.toThrow(/photo_credit_shape/);
+  });
+
   it('uploads dish photos but not into other buckets', async () => {
     await db.query(`insert into storage.objects (bucket_id, name) values ('dish-photos', 'soup-1/a.webp')`);
     await actAsAdmin(db);

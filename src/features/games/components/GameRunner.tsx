@@ -32,7 +32,7 @@ export default function GameRunner({ mode, keyboard }: { mode: GameMode; keyboar
         <GuestGame key={run} scenarios={guest.data!} keyboard={keyboard} onRestart={restart} />
       ) : (
         <div className="flex flex-col gap-3">
-          <h1 className="m-0 font-mono text-lg font-extrabold text-green-hi">гість</h1>
+          <h1 className="m-0 font-display text-2xl font-bold text-green-hi">гість</h1>
           <p className="m-0 text-sm">
             Сценаріїв поки немає. Менеджер може додати їх у розділі «керування меню».
           </p>

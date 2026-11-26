@@ -6,8 +6,8 @@ const byId = (id: string) => MENU.items.find((i) => i.id === id)!;
 const titles = (items: MenuItem[]) => items.map((i) => i.title);
 
 describe('buildMenu', () => {
-  it('maps all 197 active items with their category and subcategory', () => {
-    expect(MENU.items).toHaveLength(197);
+  it('maps all 292 active items with their category and subcategory', () => {
+    expect(MENU.items).toHaveLength(292);
     expect(MENU.categories.map((c) => c.name)).toEqual(['їжа', 'вино', 'коктейлі', 'пиво', 'міцні']);
     expect(byId(BORSCH_ID)).toMatchObject({
       category: 'food',
@@ -20,7 +20,7 @@ describe('buildMenu', () => {
     const rows = structuredClone(MENU_ROWS);
     rows.items[0].is_active = false;
     rows.items[1].subcategory_id = 999;
-    expect(buildMenu(rows.categories, rows.subcategories, rows.items).items).toHaveLength(195);
+    expect(buildMenu(rows.categories, rows.subcategories, rows.items).items).toHaveLength(290);
   });
 
   it('orders items by subcategory, then item sort', () => {
@@ -36,7 +36,7 @@ describe('sectionsFor', () => {
     const food = sectionsFor(MENU, 'food');
     expect(food[0].subcategory.name).toBe('Дитяче меню');
     expect(food.find((s) => s.subcategory.name === 'Перші страви')!.items).toHaveLength(4);
-    expect(food.reduce((n, s) => n + s.items.length, 0)).toBe(59);
+    expect(food.reduce((n, s) => n + s.items.length, 0)).toBe(82);
   });
 
   it('skips empty subcategories', () => {
@@ -47,7 +47,9 @@ describe('sectionsFor', () => {
 
 describe('searchMenu', () => {
   it('finds the borscht by name, case-insensitively', () => {
-    expect(titles(searchMenu(MENU.items, 'БОРЩ'))[0]).toBe('Борщ з пампушкою та салом із чорним часником');
+    expect(titles(searchMenu(MENU.items, 'БОРЩ'))[0]).toBe(
+      'Борщ з гречаним хлібом та салом з чорного часнику',
+    );
   });
 
   it('finds every item with lactose among its allergens', () => {

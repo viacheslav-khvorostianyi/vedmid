@@ -21,7 +21,7 @@ export default function ProgressBar({ value, max, label, className }: ProgressBa
       className={cn('h-2 overflow-hidden rounded-full bg-bg-deep', className)}
     >
       <div
-        className="h-full rounded-full bg-line transition-[width] duration-300"
+        className="h-full rounded-full bg-accent transition-[width] duration-300"
         style={{ width: `${pct}%` }}
       />
     </div>

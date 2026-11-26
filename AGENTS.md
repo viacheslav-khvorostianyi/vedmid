@@ -77,12 +77,13 @@ docs/         ARCHITECTURE, DESIGN, BACKLOG, agents/, adr/
 - Menu data comes from `useMenu()`, `useMenuSections()`, `useItem()` and `useMenuSearch()` (`features/menu/hooks/useMenu.ts`), all backed by the single cached `['menu']` query. Pure logic (grouping, search, detail tabs) lives in `features/menu/model.ts`.
 - List state lives in the URL (`?c=&q=&s=`) via `useMenuParams()`. Updates use `replace` and `flushSync`, because the search box is controlled by the URL.
 - Route views are `React.lazy` in `src/app/router.tsx`. Each shell wraps its `<Outlet/>` in `Suspense`.
-- Tests: `src/test/menuFixture.ts` gives the real 197-item menu (`MENU`, `MENU_ROWS`, ids like `item-soup-1`). `renderRoute()` pre-caches it, and the e2e fixtures serve the same rows.
+- Tests: `src/test/menuFixture.ts` gives the real 292-item menu (`MENU`, `MENU_ROWS`, ids like `item-soup-1`). `renderRoute()` pre-caches it, and the e2e fixtures serve the same rows.
 
 ## Progress & flashcards conventions (from E4)
 - Record every answer with `useRecordAnswer()` (`features/progress/hooks.ts`). It calls the `record_answer` RPC (queued offline), updates the `['stats', userId]` cache, and toasts achievements and level-ups. Never compute XP on the client.
 - Flashcard progress is cached under `['progress', userId]`. `useAnswerCard()` updates it optimistically with `applyAnswer()` (`leitner.ts`) before recording.
 - The session deck is fixed when the session mounts. Rebuild it by changing the session's React `key` (filter change, practise-all).
+- Progress restored from an earlier page load (the offline copy, saved ≤100 ms after a change) is re-checked with the server before a deck is built (`isFromEarlierPageLoad`); the progress query sends queued offline answers first. Offline, the restored copy is used.
 
 ## Games conventions (from E5)
 - Game logic lives in pure engines (`features/games/engines/*.ts`, 100% coverage) with injected `rng`. Components hold one `useReducer` per game, and «ще раз» remounts the game with a new `key`.
@@ -91,7 +92,7 @@ docs/         ARCHITECTURE, DESIGN, BACKLOG, agents/, adr/
 
 ## CI/CD (GitHub Actions)
 - **`ci.yml`** runs on every PR and push to `main`. Job `checks`: lint, `format:check`, `test:coverage` (unit + DB tests + coverage gate), seed dry-run, build. Job `e2e`: Playwright on Android (Chromium), iPhone (WebKit) and desktop. `main` is protected: both jobs must pass, and there is no force-push.
-- **`demo-pages.yml`** runs after green CI on `main`. It builds the demo for `/vedmid/`, runs `npm run test:demo` (a smoke test of the built demo), deploys to GitHub Pages, then runs `npm run test:demo:live` against the live https site. Safari's mixed-content blocking only shows up there, so any URL the demo calls must be https.
+- **`demo-pages.yml`** runs after green CI on `main`. It builds the demo for `/vedmid/`, runs `npm run test:demo` (a smoke test of the built demo), then a separate `deploy` job publishes it to GitHub Pages (if only that job fails, re-run failed jobs; the build is reused), then runs `npm run test:demo:live` against the live https site. Safari's mixed-content blocking only shows up there, so any URL the demo calls must be https.
 - **`deploy-production.yml`** is skipped until the repo variable `PRODUCTION_ENABLED=true` and the secrets exist. It pushes Supabase migrations and the Edge Function, then deploys to Vercel (`vercel.json` holds the SPA rewrite and security headers).
 - Workflow: branch from `main`, open a PR, merge once green (squash). Use Conventional Commits with the ticket ID.
 - The app must work under a base path (`import.meta.env.BASE_URL`, `/vedmid/` on Pages). Use router links, or build URLs with `BASE_URL`; never hard-code `/…` in `window.location`.
@@ -101,6 +102,9 @@ docs/         ARCHITECTURE, DESIGN, BACKLOG, agents/, adr/
 - `src/demo/handlers.ts` answers every Supabase endpoint the app uses. When you add a table query or RPC, add a handler; unknown requests get a 501 that names the endpoint.
 - `src/demo/server.ts` mirrors `record_answer` / `finish_game`. When you change those SQL functions, change this too; `server.test.ts` and `handlers.test.ts` cover it.
 - The seed data (`supabase/seed/`: fixture rows, guest rows, `achievements.ts`) is shared by the unit tests, the e2e fixtures and the demo. `seed.test.ts` checks `achievements.ts` against the migration.
+- Menu content follows the restaurant's online menu (lis-resto.choiceqr.com): `npx tsx scripts/choiceqr/sync.ts` writes `supabase/seed/choiceqrMenu.ts` (titles, composition, pairing, wine grape/sweetness) and `public/demo-photos/own/{legacyId}.webp`; `buildSeed` applies it over `src/data`. The item mapping (`scripts/choiceqr/mapping.ts`) is reviewed by hand; when the site drops a mapped item the sync fails, so update the mapping. Training fields (anchor, sales, fact, allergens, profile, producer) are ours and never synced. Items only on the site are added as `cq-<slug>` (placed by `scripts/choiceqr/additions.ts`; an unknown site category stops the sync) with empty training fields for managers to fill in.
+- Flashcards skip items with nothing to learn (`hasStudyText` in `leitner.ts`: no composition, anchor or sales phrase), and the deck panel counts the same cards. The recipe game only uses compositions that read as ingredient lists (`isIngredientList`).
+- Photos: the restaurant's own (`own/`) win over illustrative stock ones (`stock/`, `supabase/seed/stockPhotos.ts`, only for items without an own photo). In the demo build `photoUrl()` points straight at `public/demo-photos/…` under the base path (not through the service worker, so photos also show when it is not in control); `npm run db:seed` uploads them. To change stock photos, edit `scripts/photos/queries.ts` and rerun `search.ts` → `download.ts` (see ADR 0001).
 
 ## Data & auth conventions (from E2)
 - `useAuth()` (`features/auth/context.ts`) returns `{ status, session, profile, signOut }`. Protected routes sit under `RequireAuth`; role-gated ones are wrapped in `<RequireRole allow="manager">`.
@@ -109,9 +113,9 @@ docs/         ARCHITECTURE, DESIGN, BACKLOG, agents/, adr/
 - DB tests (`supabase/tests`) run the real migrations in PGlite. Every new table, policy or RPC gets a test there.
 
 ## Design rules
-- Use tokens only (`bg-bg`, `bg-green`, `border-line`, `text-muted`, `font-mono` …). No raw hex values in components, no gradients, glows, `blur`, `animate-bounce`, or emoji in UI chrome.
+- Use tokens only (`bg-bg`, `bg-green`, `border-line`, `text-muted`, `text-accent`, `font-display` …). No raw hex values in components, no gradients, glows, `blur`, `animate-bounce`, or emoji in UI chrome.
 - Active = filled `green`; inactive = 1px `line` outline + `muted` text. Radius is `12px` (`rounded-ui`). Touch targets are ≥ 44px.
-- Section titles and item names are `font-mono`; controls and body text are `font-sans`.
+- Section titles and item names are `font-display` (serif); controls and body text are `font-sans`; `font-mono` only for numbers and key hints. Brass `accent` is rare: bestseller tag, progress, focus ring.
 - All copy is in Ukrainian and lowercase (see DESIGN.md). Copy states what happens («надіслати посилання», toast «Збережено»). Errors say what went wrong and what to do next.
 - Respect `prefers-reduced-motion`. Give every interactive element a visible focus ring. Swipe always has a button equivalent.
 

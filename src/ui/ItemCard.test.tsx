@@ -32,4 +32,12 @@ describe('ItemCard', () => {
     // the badge row sits above the title instead of over it
     expect(screen.getByRole('button').className).toContain('pt-9');
   });
+
+  it('shows a decorative thumbnail next to the title when a photo is given', () => {
+    const { container } = render(<ItemCard title={TITLE} photo="/thumb.webp" onClick={() => {}} />);
+    expect(screen.getByRole('button', { name: TITLE })).toBeInTheDocument();
+    const img = container.querySelector('img');
+    expect(img).toHaveAttribute('src', '/thumb.webp');
+    expect(img).toHaveAttribute('alt', '');
+  });
 });

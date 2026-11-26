@@ -34,7 +34,7 @@ afterAll(() => server.close());
 describe('demo handlers', () => {
   it('serve the full menu, guest scenarios and achievements', async () => {
     const rows = await fetchMenu();
-    expect(buildMenu(rows.categories, rows.subcategories, rows.items).items).toHaveLength(197);
+    expect(buildMenu(rows.categories, rows.subcategories, rows.items).items).toHaveLength(292);
     expect(await fetchGuestScenarios()).toHaveLength(5);
     expect((await fetchAchievements()).map((a) => a.id)).toEqual([
       'ach-1',

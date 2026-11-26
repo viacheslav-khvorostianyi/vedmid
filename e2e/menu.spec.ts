@@ -49,7 +49,7 @@ test.describe('desktop', () => {
     await page.keyboard.press('ArrowDown');
     await expect(page).toHaveURL(/\/menu\/item-soup-1/);
     const pane = page.getByRole('complementary', { name: 'деталі позиції' });
-    await expect(pane.getByRole('heading', { level: 2 })).toContainText('Борщ з пампушкою');
+    await expect(pane.getByRole('heading', { level: 2 })).toContainText('Борщ з гречаним хлібом');
     await expect(pane.getByText('глютен, лактоза')).toBeVisible();
     await page.keyboard.press('ArrowDown');
     await expect(pane.getByRole('heading', { level: 2 })).not.toContainText('Борщ');

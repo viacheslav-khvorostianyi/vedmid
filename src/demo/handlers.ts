@@ -116,7 +116,7 @@ export function createDemoHandlers(backend: DemoBackend): HttpHandler[] {
     }),
     http.post(`${url}/rest/v1/rpc/is_manager`, () => HttpResponse.json(backend.getRole() === 'manager')),
 
-    // photos: none in the demo; anything else unknown is refused so gaps are visible
+    // anything else unknown is refused so gaps are visible
     http.all(`${url}/*`, ({ request }) =>
       HttpResponse.json(
         { message: `Demo mode has no handler for ${request.method} ${new URL(request.url).pathname}` },

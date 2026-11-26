@@ -78,7 +78,7 @@ export default function QuizGame({ items, keyboard, onRestart }: Props) {
           {state.index + 1}/{state.questions.length}
         </span>
       </GameTopBar>
-      <p className="m-0 font-mono text-base leading-snug font-bold">{question.prompt}</p>
+      <p className="m-0 font-display text-xl leading-snug font-bold">{question.prompt}</p>
       <div className="flex flex-col gap-2.5">
         {question.answers.map((answer, i) => (
           <OptionButton
