@@ -91,7 +91,7 @@ docs/         ARCHITECTURE, DESIGN, BACKLOG, agents/, adr/
 
 ## CI/CD (GitHub Actions)
 - **`ci.yml`** runs on every PR and push to `main`. Job `checks`: lint, `format:check`, `test:coverage` (unit + DB tests + coverage gate), seed dry-run, build. Job `e2e`: Playwright on Android (Chromium), iPhone (WebKit) and desktop. `main` is protected: both jobs must pass, and there is no force-push.
-- **`demo-pages.yml`** runs after green CI on `main`. It builds the demo for `/vedmid/`, runs `npm run test:demo` (a smoke test of the built demo), deploys to GitHub Pages, then runs `npm run test:demo:live` against the live https site. Safari's mixed-content blocking only shows up there, so any URL the demo calls must be https.
+- **`demo-pages.yml`** runs after green CI on `main`. It builds the demo for `/vedmid/`, runs `npm run test:demo` (a smoke test of the built demo), then a separate `deploy` job publishes it to GitHub Pages (if only that job fails, re-run failed jobs; the build is reused), then runs `npm run test:demo:live` against the live https site. Safari's mixed-content blocking only shows up there, so any URL the demo calls must be https.
 - **`deploy-production.yml`** is skipped until the repo variable `PRODUCTION_ENABLED=true` and the secrets exist. It pushes Supabase migrations and the Edge Function, then deploys to Vercel (`vercel.json` holds the SPA rewrite and security headers).
 - Workflow: branch from `main`, open a PR, merge once green (squash). Use Conventional Commits with the ticket ID.
 - The app must work under a base path (`import.meta.env.BASE_URL`, `/vedmid/` on Pages). Use router links, or build URLs with `BASE_URL`; never hard-code `/…` in `window.location`.
