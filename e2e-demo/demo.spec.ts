@@ -32,7 +32,7 @@ test('all 197 menu items are reachable', async ({ page, isMobile }) => {
 
 test('deep links work under the base path', async ({ page }) => {
   await page.goto(BASE + 'menu/item-soup-1');
-  await expect(page.getByRole('heading', { name: /Борщ з пампушкою/ }).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Борщ з гречаним хлібом/ }).first()).toBeVisible();
 });
 
 test('flashcard progress is kept across reloads', async ({ page }) => {

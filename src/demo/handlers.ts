@@ -1,4 +1,4 @@
-import { http, HttpResponse, type HttpHandler, type JsonBodyType } from 'msw';
+import { bypass, http, HttpResponse, type HttpHandler, type JsonBodyType } from 'msw';
 import type { StaffRole } from '@/features/auth/context';
 import { ACHIEVEMENT_ROWS } from '../../supabase/seed/achievements';
 import { buildFixtureRows, buildGuestRows } from '../../supabase/seed/fixtureRows';
@@ -11,6 +11,8 @@ export interface DemoBackend {
   setState: (s: DemoState) => void;
   getRole: () => StaffRole;
   now?: () => Date;
+  /** Absolute URL of public/demo-photos (holds stock/ and own/), ending in `/` */
+  photoBase?: string;
 }
 
 /** PostgREST: `.single()` asks for an object; everything else gets an array. */
@@ -116,7 +118,19 @@ export function createDemoHandlers(backend: DemoBackend): HttpHandler[] {
     }),
     http.post(`${url}/rest/v1/rpc/is_manager`, () => HttpResponse.json(backend.getRole() === 'manager')),
 
-    // photos: none in the demo; anything else unknown is refused so gaps are visible
+    // Dish photos: Storage URLs are answered with the copies the demo build ships in public/demo-photos
+    // (stock/ = illustrative, own/ = the restaurant's photos from its online menu).
+    http.get(`${url}/storage/v1/object/public/dish-photos/:folder/:file`, async ({ params }) => {
+      if (params.folder !== 'stock' && params.folder !== 'own')
+        return new HttpResponse(null, { status: 404 });
+      const base =
+        backend.photoBase ?? new URL(`${import.meta.env.BASE_URL}demo-photos/`, location.origin).href;
+      const res = await fetch(bypass(new URL(`${params.folder}/${params.file}`, base).href));
+      if (!res.ok) return new HttpResponse(null, { status: 404 });
+      return new HttpResponse(await res.arrayBuffer(), { headers: { 'Content-Type': 'image/webp' } });
+    }),
+
+    // anything else unknown is refused so gaps are visible
     http.all(`${url}/*`, ({ request }) =>
       HttpResponse.json(
         { message: `Demo mode has no handler for ${request.method} ${new URL(request.url).pathname}` },

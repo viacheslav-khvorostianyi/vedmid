@@ -1,11 +1,17 @@
 import type { MenuItemInput } from '@/features/manager/schema';
 import type { Json, Tables, TablesInsert } from '@/lib/db.types';
-import type { CategorySlug, MenuItem, Producer, TasteProfile } from './types';
+import type { CategorySlug, MenuItem, PhotoCredit, Producer, TasteProfile } from './types';
 
 // The only place where menu DB rows (snake_case) are mapped to domain types (camelCase).
 // Pure (no Supabase client), so the seed script and e2e fixtures can use it in Node.
 
 export type MenuItemRow = Tables<'menu_items'>;
+
+function toPhotoCredit(value: Json | null): PhotoCredit | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const { text, url } = value;
+  return typeof text === 'string' && typeof url === 'string' ? { text, url } : null;
+}
 
 export function fromMenuItemRow(
   row: MenuItemRow,
@@ -31,6 +37,7 @@ export function fromMenuItemRow(
     isBestseller: row.is_bestseller,
     isFinalist: row.is_finalist,
     photoPath: row.photo_path,
+    photoCredit: toPhotoCredit(row.photo_credit),
     sort: row.sort,
     isActive: row.is_active,
     updatedAt: row.updated_at,
@@ -57,5 +64,6 @@ export function toMenuItemRow(input: MenuItemInput): TablesInsert<'menu_items'> 
     is_active: input.isActive,
     sort: input.sort,
     photo_path: input.photoPath,
+    photo_credit: input.photoCredit,
   };
 }

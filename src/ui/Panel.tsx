@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn';
 
 interface PanelProps {
   children: ReactNode;
-  /** `strong` for long text: darker ink for AA contrast on green (DESIGN §2) */
+  /** `strong` for long text: brightest cream for AA contrast on green (DESIGN §2) */
   tone?: 'default' | 'strong';
   className?: string;
 }

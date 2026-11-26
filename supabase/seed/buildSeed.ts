@@ -2,6 +2,8 @@ import type { SeedCategory, SeedMenuItem } from '../../src/data/types';
 import { menuItemInputSchema, type MenuItemInput } from '../../src/features/manager/schema';
 import type { TablesInsert } from '../../src/lib/db.types';
 import type { SeedGuestScenario } from './guestScenarios';
+import { CHOICEQR_ITEMS } from './choiceqrMenu';
+import { STOCK_PHOTO_ITEMS, STOCK_PHOTOS } from './stockPhotos';
 
 /** Mirrors the ids seeded into public.categories by 0001_init.sql. */
 export const CATEGORY_IDS: Record<SeedCategory, number> = {
@@ -11,6 +13,22 @@ export const CATEGORY_IDS: Record<SeedCategory, number> = {
   'Безалкогольні & Пиво': 4,
   'Міцні напої': 5,
 };
+
+/** Storage path of a stock photo in the dish-photos bucket. */
+export const stockPhotoPath = (key: string) => `stock/${key}.webp`;
+
+/** Storage path of the restaurant's own photo (from its online menu) in the dish-photos bucket. */
+export const ownPhotoPath = (legacyId: string) => `own/${legacyId}.webp`;
+
+/** The restaurant's own photo wins over an illustrative stock photo, which wins over none. */
+function photo(legacyId: string) {
+  if (CHOICEQR_ITEMS[legacyId]?.photo) return { photoPath: ownPhotoPath(legacyId), photoCredit: null };
+  const key = STOCK_PHOTO_ITEMS[legacyId];
+  const credit = key ? STOCK_PHOTOS[key] : undefined;
+  return key && credit
+    ? { photoPath: stockPhotoPath(key), photoCredit: credit }
+    : { photoPath: null, photoCredit: null };
+}
 
 export interface SeedSubcategory {
   key: string;
@@ -57,24 +75,26 @@ export function buildSeed(menu: readonly SeedMenuItem[], scenarios: readonly See
     const sort = (perSubCount.get(key) ?? 0) + 1;
     perSubCount.set(key, sort);
 
+    // Current titles, compositions and pairings from the restaurant's online menu (scripts/choiceqr/sync.ts)
+    const site = CHOICEQR_ITEMS[m.id];
     const parsed = itemSchema.safeParse({
       legacyId: m.id,
-      title: m.title,
+      title: site?.title ?? m.title,
       anchor: m.anchor,
-      ingredients: m.ingredients,
+      ingredients: site?.ingredients ?? m.ingredients,
       sales: m.sales,
       interestingFact: optional(m.interestingFact),
-      pairing: optional(m.pairing),
+      pairing: site?.pairing ?? optional(m.pairing),
       allergens: m.allergens ?? [],
-      grapeVarieties: optional(m.grapeVarieties),
-      sweetness: optional(m.sweetness),
+      grapeVarieties: site?.grapeVarieties ?? optional(m.grapeVarieties),
+      sweetness: site?.sweetness ?? optional(m.sweetness),
       tasteProfile: m.profile ?? null,
       producer: m.producer ?? null,
       isBestseller: m.isBestseller ?? false,
       isFinalist: m.isFinalist ?? false,
       isActive: true,
       sort,
-      photoPath: null,
+      ...photo(m.id),
     });
     if (parsed.success) items.push({ subcategoryKey: key, input: parsed.data });
     else

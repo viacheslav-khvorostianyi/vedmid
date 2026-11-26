@@ -16,13 +16,13 @@ export default function Logo({ size = 'md', stacked = false, className }: LogoPr
       role="img"
       aria-label="Просто ЛІС — база знань"
     >
-      <BearMark className={cn('text-green', size === 'lg' ? 'h-16 w-[116px]' : 'h-7 w-[52px]')} />
+      <BearMark className={cn('text-accent', size === 'lg' ? 'h-16 w-[116px]' : 'h-7 w-[52px]')} />
       <div className="leading-tight" aria-hidden="true">
         <span className={cn('block text-text', size === 'lg' ? 'text-base' : 'text-[13px]')}>база знань</span>
         <span
           className={cn(
-            'block font-mono font-extrabold tracking-wide text-lockup',
-            size === 'lg' ? 'text-xl' : 'text-[17px]',
+            'block font-display font-bold tracking-[0.12em] text-lockup',
+            size === 'lg' ? 'text-2xl' : 'text-lg',
           )}
         >
           ПРОСТО ЛІС

@@ -171,6 +171,7 @@ export type Database = {
           is_finalist: boolean;
           legacy_id: string | null;
           pairing: string | null;
+          photo_credit: Json | null;
           photo_path: string | null;
           producer: Json | null;
           sales: string;
@@ -194,6 +195,7 @@ export type Database = {
           is_finalist?: boolean;
           legacy_id?: string | null;
           pairing?: string | null;
+          photo_credit?: Json | null;
           photo_path?: string | null;
           producer?: Json | null;
           sales?: string;
@@ -217,6 +219,7 @@ export type Database = {
           is_finalist?: boolean;
           legacy_id?: string | null;
           pairing?: string | null;
+          photo_credit?: Json | null;
           photo_path?: string | null;
           producer?: Json | null;
           sales?: string;

@@ -3,6 +3,8 @@
 > Source of truth for visuals: `new_design.pdf` (mobile screens 1–3) and the interactive proposal
 > https://claude.ai/artifact/HsMvF2sG8wqS3NCFbpGQNc (all mobile + desktop screens).
 > If this file and the artifact disagree, the artifact wins for visuals and this file wins for behaviour.
+> **Exception:** the «dark forest bistro» retheme ([ADR 0001](adr/0001-restaurant-theme-and-stock-photos.md)) postdates the
+> artifact. Until the artifact is refreshed, this file wins for colour, typography and photos.
 
 Brand lockup: bear logo + «база знань / ПРОСТО ЛІС». Product (repo/app) name: **Ведмідь**.
 UI language: Ukrainian only. All UI copy is lowercase except proper nouns, the brand lockup, and item titles.
@@ -10,39 +12,42 @@ UI language: Ukrainian only. All UI copy is lowercase except proper nouns, the b
 ---
 
 ## 1. Principles
-1. **Flat, dark, calm.** A single dark theme: no gradients, glows, blur or bounce animations. Remove the current `bg-[#030a06]` + emerald glow styling completely.
+1. **Flat, dark, calm — a forest bistro.** A single dark theme in forest charcoal, warm cream and moss, with brass as a rare accent: no gradients, glows, blur or bounce animations.
 2. **Rush-hour ergonomics.** Waiters check the app mid-service, one-handed. Touch targets ≥ 44px, the primary action sits in the thumb zone, and every item is reachable in ≤ 2 taps from the menu tab.
-3. **Mono = content, Sans = controls.** Section titles and item names use JetBrains Mono; chips, buttons and body text use Open Sans.
+3. **Serif = content, Sans = controls.** Section titles and item names use Cormorant Garamond (`font-display`, semibold/bold, ≥ 16px because it is light); chips, buttons and body text use Manrope. JetBrains Mono (`font-mono`) is only for numbers and key hints.
 4. **Active = filled green, inactive = green outline.** This applies to chips, nav, tabs and segmented controls.
 
 ## 2. Tokens (`src/styles/tokens.css`)
 The snippet below is a summary; `src/styles/tokens.css` is the source of truth (it also holds base styles, the focus ring, reduced-motion rules and the `no-scrollbar` utility). Tailwind classes follow the names: `bg-green`, `border-line-faint`, `text-on-green-strong`, `rounded-ui`, the `desk:` variant.
 ```css
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Open+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=JetBrains+Mono:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-bg:        #383838; /* app background */
-  --color-bg-deep:   #2B2C2B; /* desktop sidebar, drawers */
-  --color-bg-raised: #424342; /* inputs, hover rows, stat tiles */
-  --color-green:     #476E4C; /* active chip, panels, flashcard, search field */
-  --color-green-hi:  #548059; /* section titles, hover on green */
-  --color-line:      #5BE35B; /* 1px outlines (chips, cards, bottom nav) */
-  --color-line-soft: rgb(91 227 91 / .45); /* dividers */
-  --color-text:      #FFFFFF;
-  --color-muted:     #9A9A9A; /* inactive chips, captions */
-  --color-lockup:    #A8A8A8; /* «ПРОСТО ЛІС» wordmark */
-  --color-line-faint: rgb(91 227 91 / .18); /* desktop pane dividers */
-  --color-on-green-strong: #1F2A20; /* long text on green (AA) */
-  --color-on-green:  #2E2E2E; /* body text on green panels */
-  --color-on-green-soft: #A9BFAA; /* secondary text on green */
-  --color-search-ph: #8FB293; /* placeholder inside green search */
-  --color-warn-bg:   #6E5846; /* «не знаю» */
-  --color-warn:      #FFA766;
-  --color-danger:    #E5484D; /* form errors only */
+  --color-bg:        #1E2420; /* app background: forest charcoal */
+  --color-bg-deep:   #171C19; /* desktop sidebar, drawers */
+  --color-bg-raised: #2A322C; /* inputs, hover rows, stat tiles */
+  --color-green:     #3F5E46; /* moss: active chip, panels, flashcard, search field */
+  --color-green-hi:  #8DB08F; /* section titles on bg */
+  --color-line:      #6E8B6A; /* 1px outlines (chips, cards, bottom nav) */
+  --color-line-soft: rgb(110 139 106 / .45); /* dividers */
+  --color-line-faint: rgb(110 139 106 / .2); /* desktop pane dividers */
+  --color-text:      #F3EBDD; /* warm cream */
+  --color-muted:     #A79F90; /* inactive chips, captions */
+  --color-lockup:    #C9BFAE; /* «ПРОСТО ЛІС» wordmark */
+  --color-accent:    #C9A15B; /* brass: bestseller tag, progress, bear mark, focus ring */
+  --color-on-accent: #1E2420;
+  --color-on-green:  #F3EBDD; /* text on green panels (light: dark ink on moss fails AA) */
+  --color-on-green-strong: #FFF8EC; /* long text on green */
+  --color-on-green-soft: #C8D4C4; /* secondary text on green */
+  --color-search-ph: #BFCDBA; /* placeholder inside green search */
+  --color-warn-bg:   #4A3828; /* «не знаю» */
+  --color-warn:      #E3A86A;
+  --color-danger:    #E06A5F; /* form errors only */
 
-  --font-sans: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans:    "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; /* numbers, key hints */
 
   --radius-ui: 12px;
   --breakpoint-desk: 1024px;
@@ -72,10 +77,10 @@ Spacing: 4px base. Side gutter is 16px on mobile and 24px on desktop. Gap betwee
 | `SearchInput` | Green fill, radius 12, lens icon on the left, placeholder «пошук страви, вина, алергену…». Searches title, ingredients, allergens, anchor, grape varieties. On desktop, `/` focuses it |
 | `Chip` | height ≥ 44, padding 11×16, radius 12. `on`: bg green, text white. `off`: 1px line border, muted text. Rows scroll horizontally (`ChipRow`, hidden scrollbar, scroll-snap) |
 | `SectionTitle` | Mono 800 green-hi, 1px `line-soft` divider below; the list ends with another divider (as in the PDF) |
-| `ItemCard` | 1px line border, radius 12, min-height 112 (mobile) / 96 (desktop), centred mono title. Badges top-right (bestseller ★, finalist) as a small outlined tag. Selected state on desktop: `green/35%` fill |
+| `ItemCard` | 1px line border, radius 12, min-height 112 (mobile) / 96 (desktop), centred serif title. With a photo: a 72px (64px compact) rounded thumbnail on the left and a left-aligned title. Badges top-right; bestseller «★ хіт» uses the brass `accent` tag. Selected state on desktop: `green/35%` fill. Menu lists render it via `features/menu/components/MenuItemCard` |
 | `SegmentedTabs` | Row of equal chips. Used in detail (алергени / склад / поєднання; wine adds сорт / виробник) |
 | `Panel` | Green fill, radius 12, padding 12×14, on-green text |
-| `Photo` | 16:10 (mobile) / 16:9 (desktop) green placeholder with «фото подачі» until `photo_path` exists. `loading="lazy"`, WebP from Supabase Storage transform |
+| `Photo` | 16:10 (mobile) / 16:9 (desktop) green placeholder with «фото подачі» until `photo_path` exists. `loading="lazy"`, WebP from Supabase Storage. The restaurant's own photos (from its online menu) show without a caption. Stock photos (`photo_credit` set) get the caption «ілюстративне фото · {author, licence}» linking to the source (required by CC BY) |
 | `Button` | `ok` (green / white), `no` (warn-bg / warn), `ghost` (outline). Height ≥ 48 on mobile |
 | `BottomNav` | 4 chips in a grid: меню · картки · ігри · профіль. Divider above, `padding-bottom: env(safe-area-inset-bottom)`. Label «картки» in full (the PDF truncates it only because of mockup width) |
 | `Sidebar` (desktop) | 232px, bg-deep, lockup, nav items with key hints 1–4 (M for manager), user block at the bottom |

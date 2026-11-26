@@ -47,7 +47,9 @@ describe('sectionsFor', () => {
 
 describe('searchMenu', () => {
   it('finds the borscht by name, case-insensitively', () => {
-    expect(titles(searchMenu(MENU.items, 'БОРЩ'))[0]).toBe('Борщ з пампушкою та салом із чорним часником');
+    expect(titles(searchMenu(MENU.items, 'БОРЩ'))[0]).toBe(
+      'Борщ з гречаним хлібом та салом з чорного часнику',
+    );
   });
 
   it('finds every item with lactose among its allergens', () => {

@@ -9,7 +9,7 @@ interface SectionTitleProps {
   className?: string;
 }
 
-/** Green mono heading («перші страви») with the thin divider from the PDF. */
+/** Green serif heading («перші страви») with the thin divider from the PDF. */
 export default function SectionTitle({
   children,
   as: Tag = 'h2',
@@ -20,8 +20,8 @@ export default function SectionTitle({
   return (
     <Tag
       className={cn(
-        'm-0 font-mono font-extrabold text-green-hi',
-        size === 'md' ? 'text-xl desk:text-[22px]' : 'text-[17px]',
+        'm-0 font-display font-bold text-green-hi',
+        size === 'md' ? 'text-2xl desk:text-[26px]' : 'text-xl',
         divider && 'border-b border-line-soft pb-2',
         className,
       )}
