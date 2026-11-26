@@ -63,8 +63,7 @@ test('flashcard progress is kept across reloads', async ({ page }) => {
     )
     .toBe(1);
   await page.reload();
-  // WebKit sometimes takes several seconds to restart the demo's service worker after a reload
-  await expect(page.getByText('картка 1 з 28')).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText('картка 1 з 28')).toBeVisible();
 });
 
 test('the demo bar switches to the manager role', async ({ page }) => {
