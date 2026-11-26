@@ -92,7 +92,7 @@ export default function Flashcard({ item, flipped, onFlip, onSwipe }: FlashcardP
             aria-hidden="true"
             className={cn(
               'absolute top-4 rounded-full px-3 py-1 text-sm font-semibold',
-              dx > 0 ? 'right-4 bg-green-hi text-text' : 'left-4 bg-warn-bg text-warn',
+              dx > 0 ? 'right-4 bg-green text-text' : 'left-4 bg-warn-bg text-warn',
             )}
             style={{ opacity: hint }}
           >

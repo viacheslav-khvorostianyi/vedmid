@@ -17,7 +17,7 @@ export default function ItemDetailView() {
   if (!item) {
     return (
       <div className="flex flex-col gap-3">
-        <h1 className="m-0 font-mono text-xl font-extrabold text-green-hi">позицію не знайдено</h1>
+        <h1 className="m-0 font-display text-2xl font-bold text-green-hi">позицію не знайдено</h1>
         <p className="m-0 text-sm">Можливо, її прибрали з меню.</p>
         <Link to="/menu" className="text-sm underline">
           до меню
@@ -33,7 +33,7 @@ export default function ItemDetailView() {
     </>
   );
   const backClass =
-    'inline-flex min-h-11 items-center gap-1 self-start font-mono text-xl font-extrabold text-green-hi hover:text-line';
+    'inline-flex min-h-11 items-center gap-1 self-start font-display text-2xl font-bold text-green-hi hover:text-text';
 
   return (
     <article className="flex flex-col gap-3.5">

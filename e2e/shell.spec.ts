@@ -25,7 +25,7 @@ test('navigates between the four sections', async ({ asWaiter: page }) => {
 test('deep link to an item survives a reload (SPA fallback)', async ({ asWaiter: page }) => {
   await page.goto('/menu/item-soup-1');
   await page.reload();
-  await expect(page.getByRole('heading', { name: /Борщ з пампушкою/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Борщ з гречаним хлібом/ })).toBeVisible();
 });
 
 test('resizing across 1024px swaps the shell and keeps the route', async ({ asWaiter: page }, testInfo) => {

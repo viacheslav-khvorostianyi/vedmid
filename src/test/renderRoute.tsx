@@ -63,6 +63,8 @@ export function renderRoute(
   options: {
     menu?: typeof MENU_ROWS | null;
     progress?: CardProgress[];
+    /** The cached progress was restored from an earlier page load (the offline copy), so it gets re-checked */
+    progressRestored?: boolean;
     stats?: PlayerStats;
     guest?: GuestScenario[];
   } = {},
@@ -70,7 +72,9 @@ export function renderRoute(
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
   const menu = options.menu === undefined ? MENU_ROWS : options.menu;
   if (menu) client.setQueryData(MENU_QUERY_KEY, menu);
-  client.setQueryData(progressKey(TEST_USER_ID), options.progress ?? []);
+  client.setQueryData(progressKey(TEST_USER_ID), options.progress ?? [], {
+    updatedAt: options.progressRestored ? 1 : undefined,
+  });
   client.setQueryData(statsKey(TEST_USER_ID), options.stats ?? EMPTY_STATS);
   client.setQueryData(ACHIEVEMENTS_KEY, ACHIEVEMENTS);
   client.setQueryData(GUEST_SCENARIOS_KEY, options.guest ?? GUEST_SCENARIOS);

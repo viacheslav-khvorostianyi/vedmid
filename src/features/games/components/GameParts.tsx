@@ -16,7 +16,7 @@ export function GameTopBar({ title, children }: { title: string; children?: Reac
       >
         <X aria-hidden="true" className="size-6" strokeWidth={1.8} />
       </Link>
-      <h1 className="m-0 font-mono text-lg font-extrabold text-green-hi">{title}</h1>
+      <h1 className="m-0 font-display text-2xl font-bold text-green-hi">{title}</h1>
       <div className="ml-auto flex items-center gap-3 text-sm text-muted tabular-nums">{children}</div>
     </div>
   );
@@ -139,7 +139,7 @@ export function GameCard({ to, title, description }: { to: string; title: string
       to={to}
       className="flex flex-col gap-2 rounded-ui border border-line p-4 transition-colors hover:bg-green/20"
     >
-      <span className="font-mono text-[15px] font-bold">{title}</span>
+      <span className="font-display text-lg font-bold">{title}</span>
       <span className="text-[13px] text-muted">{description}</span>
     </Link>
   );

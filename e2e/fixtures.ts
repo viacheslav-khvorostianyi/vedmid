@@ -1,7 +1,7 @@
 import { test as base, type Page } from '@playwright/test';
 import { buildFixtureRows, buildGuestRows } from '../supabase/seed/fixtureRows';
 
-/** The real menu (197 items) as DB rows; item ids are `item-<legacy id>`. */
+/** The real menu (292 items) as DB rows; item ids are `item-<legacy id>`. */
 export const MENU_ROWS = buildFixtureRows();
 export const GUEST_ROWS = buildGuestRows();
 

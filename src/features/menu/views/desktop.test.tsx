@@ -21,14 +21,19 @@ describe('MenuPanesView (desktop)', () => {
     const { router } = renderRoute('/menu');
     await userEvent.click(await screen.findByRole('button', { name: /Перші страви/ }));
     expect(screen.getByRole('heading', { level: 1, name: 'перші страви' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('link', { name: /Борщ з пампушкою/ }));
+    await userEvent.click(screen.getByRole('link', { name: /Борщ з гречаним хлібом/ }));
     expect(router.state.location.pathname).toBe('/menu/item-soup-1');
     const pane = screen.getByRole('complementary', { name: 'деталі позиції' });
-    expect(within(pane).getByRole('heading', { level: 2, name: /Борщ з пампушкою/ })).toBeInTheDocument();
+    expect(
+      within(pane).getByRole('heading', { level: 2, name: /Борщ з гречаним хлібом/ }),
+    ).toBeInTheDocument();
     // stacked: all sections at once, no tabs
     expect(within(pane).queryByRole('tab')).not.toBeInTheDocument();
     expect(within(pane).getByRole('heading', { name: 'склад' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Борщ з пампушкою/ })).toHaveAttribute('aria-current', 'true');
+    expect(screen.getByRole('link', { name: /Борщ з гречаним хлібом/ })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
   });
 
   it('opens the category and subcategory of a deep-linked item', async () => {

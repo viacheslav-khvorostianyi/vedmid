@@ -52,7 +52,7 @@ export default function RecipeGame({ items, onRestart }: Props) {
         </span>
       </GameTopBar>
       <p className="m-0 text-sm text-muted">Обери все, що входить до складу:</p>
-      <p className="m-0 font-mono text-base leading-snug font-bold">{round.title}</p>
+      <p className="m-0 font-display text-xl leading-snug font-bold">{round.title}</p>
       <div className="grid grid-cols-2 gap-2.5">
         {round.options.map((option, i) => {
           const selected = state.selected.includes(i);

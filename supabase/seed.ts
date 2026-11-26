@@ -2,12 +2,18 @@
 //   npm run db:seed              → writes to SUPABASE_URL with SUPABASE_SERVICE_ROLE_KEY from .env.seed
 //   npm run db:seed -- --dry-run → validates and prints counts, writes nothing
 //   npm run db:seed -- --overwrite → also resets existing rows to the static data (discards manager edits)
+// Photos in public/demo-photos are uploaded to the dish-photos bucket: the restaurant's own (own/, from its online
+// menu) replace missing or stock photos; illustrative stock ones (stock/) fill items that still have none.
+// A photo a manager uploaded is never replaced.
 import { createClient } from '@supabase/supabase-js';
 import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { menuData } from '../src/data/menuData';
 import type { Database } from '../src/lib/db.types';
-import { buildSeed } from './seed/buildSeed';
+import { buildSeed, ownPhotoPath, stockPhotoPath } from './seed/buildSeed';
+import { CHOICEQR_ITEMS, CHOICEQR_NEW_ITEMS } from './seed/choiceqrMenu';
 import { guestScenarios } from './seed/guestScenarios';
+import { STOCK_PHOTO_ITEMS, STOCK_PHOTOS } from './seed/stockPhotos';
 import { writeSeed, type SeedMode, type SeedWriter } from './seed/writeSeed';
 
 const plan = buildSeed(menuData, guestScenarios);
@@ -23,6 +29,30 @@ console.log(
   `Validated ${plan.items.length} items in ${plan.subcategories.length} subcategories, ${plan.guestScenarios.length} guest scenarios.`,
 );
 console.log('Items per category id:', Object.fromEntries(byCategory));
+
+// mapped items and items only on the site; new rows already point at own/ when the seed inserts them
+const ownIds = [
+  ...Object.entries(CHOICEQR_ITEMS)
+    .filter(([, item]) => item.photo)
+    .map(([id]) => id),
+  ...CHOICEQR_NEW_ITEMS.filter((item) => item.photo).map((item) => item.id),
+];
+const stockKeys = Object.keys(STOCK_PHOTOS);
+const uploads = [
+  ...ownIds.map((id) => ({ path: ownPhotoPath(id), file: `public/demo-photos/${ownPhotoPath(id)}` })),
+  ...stockKeys.map((key) => ({
+    path: stockPhotoPath(key),
+    file: `public/demo-photos/${stockPhotoPath(key)}`,
+  })),
+];
+const missingPhotos = uploads.filter((u) => !existsSync(u.file)).map((u) => u.file);
+if (missingPhotos.length) {
+  console.error(`Missing photo files: ${missingPhotos.join(', ')}`);
+  process.exit(1);
+}
+console.log(
+  `Photos: ${ownIds.length} own, ${stockKeys.length} stock for ${Object.keys(STOCK_PHOTO_ITEMS).length} items.`,
+);
 
 if (process.argv.includes('--dry-run')) process.exit(0);
 
@@ -64,3 +94,41 @@ const writer: SeedWriter = {
 
 const written = await writeSeed(plan, writer, mode);
 console.log('Seeded:', written);
+
+// Upload before pointing rows at the files. insert-missing keeps objects that are already there.
+for (const { path, file } of uploads) {
+  const { error } = await supabase.storage
+    .from('dish-photos')
+    .upload(path, await readFile(file), { contentType: 'image/webp', upsert: mode === 'overwrite' });
+  if (error && !/exists/i.test(error.message)) throw error;
+}
+// insert-missing skipped existing rows. Own photos replace a missing or stock photo, never a manager's upload.
+let ownSet = 0;
+for (const id of ownIds) {
+  const { data, error } = await supabase
+    .from('menu_items')
+    .update({ photo_path: ownPhotoPath(id), photo_credit: null })
+    .eq('legacy_id', id)
+    .or('photo_path.is.null,photo_path.like.stock/%')
+    .select('id');
+  if (error) throw error;
+  ownSet += data.length;
+}
+let stockSet = 0;
+for (const key of stockKeys) {
+  const ids = Object.entries(STOCK_PHOTO_ITEMS)
+    .filter(([id, k]) => k === key && !CHOICEQR_ITEMS[id]?.photo)
+    .map(([id]) => id);
+  if (!ids.length) continue;
+  const { data, error } = await supabase
+    .from('menu_items')
+    .update({ photo_path: stockPhotoPath(key), photo_credit: { ...STOCK_PHOTOS[key] } })
+    .in('legacy_id', ids)
+    .is('photo_path', null)
+    .select('id');
+  if (error) throw error;
+  stockSet += data.length;
+}
+console.log(
+  `Photos: ${uploads.length} uploaded; ${ownSet} items got the restaurant's photo, ${stockSet} a stock one.`,
+);
