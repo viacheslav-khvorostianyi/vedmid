@@ -13,6 +13,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
+  // A first visit installs the mock service worker and parses ~1.4 MB of JS before the app renders. Alone that takes
+  // 1–2 s, but with three browsers starting in parallel WebKit measured up to ~5 s, the default limit.
+  expect: { timeout: 15_000 },
   use: { baseURL: live ?? `http://localhost:${PORT}`, trace: 'on-first-retry' },
   projects: [
     { name: 'mobile', use: { ...devices['Pixel 7'] } },

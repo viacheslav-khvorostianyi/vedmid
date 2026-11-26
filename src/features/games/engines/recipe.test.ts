@@ -3,6 +3,7 @@ import { seededRng } from '@/lib/shuffle';
 import { MENU } from '@/test/menuFixture';
 import {
   buildRecipe,
+  isIngredientList,
   isPerfect,
   RECIPE_ROUNDS,
   recipeReducer,
@@ -53,6 +54,24 @@ describe('buildRecipe', () => {
       const own = splitIngredients(MENU.items.find((i) => i.id === r.itemId)!.ingredients).map(normalize);
       r.options.filter((o) => !o.correct).forEach((o) => expect(own).not.toContain(normalize(o.text)));
     }
+  });
+
+  it('only uses compositions that read as ingredient lists', () => {
+    for (const r of rounds) {
+      expect(isIngredientList(splitIngredients(MENU.items.find((i) => i.id === r.itemId)!.ingredients))).toBe(
+        true,
+      );
+      r.options.forEach((o) => expect(o.text.length).toBeLessThanOrEqual(40));
+    }
+    expect(isIngredientList(['бурата', 'томати', 'хліб'])).toBe(true);
+    expect(
+      isIngredientList([
+        'ароматний салат з буратою',
+        'томатами',
+        'запеченим перцем та кремом із батату. Соус',
+      ]),
+    ).toBe(false);
+    expect(isIngredientList(['одне', 'два'])).toBe(false);
   });
 });
 

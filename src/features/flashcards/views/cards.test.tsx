@@ -46,7 +46,7 @@ describe('CardsView (mobile)', () => {
   it('starts with the food deck as in the PDF', async () => {
     renderRoute('/cards');
     expect(await screen.findByRole('tab', { name: 'їжа' })).toHaveAttribute('aria-selected', 'true');
-    expect(counter()).toHaveTextContent('картка 1 з 59');
+    expect(counter()).toHaveTextContent('картка 1 з 81');
     expect(screen.getByText('торкнись для детального ознайомлення')).toBeInTheDocument();
   });
 
@@ -106,16 +106,16 @@ describe('CardsView (mobile)', () => {
     renderRoute('/cards', undefined, { progress: onlyDue() });
     expect(await screen.findByRole('heading', { name: 'на сьогодні все' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'повторити все одно' }));
-    expect(counter()).toHaveTextContent('картка 1 з 59');
+    expect(counter()).toHaveTextContent('картка 1 з 81');
   });
 
   it('starts a new deck when the category changes', async () => {
     const { router } = renderRoute('/cards');
     await userEvent.click(await screen.findByRole('tab', { name: 'вино' }));
-    expect(counter()).toHaveTextContent('картка 1 з 37');
+    expect(counter()).toHaveTextContent('картка 1 з 52');
     expect(router.state.location.search).toBe('?c=wine');
     await userEvent.click(screen.getByRole('tab', { name: 'усі' }));
-    expect(counter()).toHaveTextContent('картка 1 з 197');
+    expect(counter()).toHaveTextContent('картка 1 з 257');
   });
 
   it('announces a new achievement and a level-up', async () => {

@@ -29,9 +29,14 @@ export function dueAt(p: CardProgress): number {
   return reviewed + BOX_INTERVAL_DAYS[clampBox(p.box) - 1] * DAY_MS;
 }
 
+/** A card needs something on its back. Items added from the site start without training text. */
+export function hasStudyText(item: MenuItem): boolean {
+  return Boolean(item.ingredients?.trim() || item.anchor?.trim() || item.sales?.trim());
+}
+
 /**
  * Today's deck: due cards first (most overdue first), then cards never seen, shuffled.
- * Cards reviewed recently enough are left out until they are due.
+ * Cards reviewed recently enough are left out until they are due, and items with nothing to learn are left out.
  */
 export function buildDeck(
   items: readonly MenuItem[],
@@ -43,6 +48,7 @@ export function buildDeck(
   const due: { item: MenuItem; at: number }[] = [];
   const unseen: MenuItem[] = [];
   for (const item of items) {
+    if (!hasStudyText(item)) continue;
     const p = byItem.get(item.id);
     if (!p) unseen.push(item);
     else if (dueAt(p) <= now) due.push({ item, at: dueAt(p) });
@@ -79,7 +85,9 @@ export function boxDistribution(
   const byItem = new Map(progress.map((p) => [p.itemId, p]));
   const boxes = Array.from({ length: MAX_BOX }, () => 0);
   let unseen = 0;
+  // the same cards as buildDeck, so «нові» matches the deck counter
   for (const item of items) {
+    if (!hasStudyText(item)) continue;
     const p = byItem.get(item.id);
     if (p) boxes[clampBox(p.box) - 1]++;
     else unseen++;

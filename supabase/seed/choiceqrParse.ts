@@ -117,3 +117,23 @@ export function isRenamed(before: string, after: string): boolean {
   const b = stems(after);
   return a.size !== b.size || [...a].some((w) => !b.has(w));
 }
+
+/** A site listing's name without the editor's leftovers: «Rhyolite SASS K. Winery Copy» → «Rhyolite SASS K. Winery». */
+export function listingTitle(name: string): string {
+  return tidy(name)
+    .replace(/\s+(copy|келих|пляшка)$/i, '')
+    .replace(/[`’]/g, "'");
+}
+
+/**
+ * Keys under which two listings count as one product. Wines are listed per glass and per bottle under slightly
+ * different names («Barbaryska Rkatsiteli Bohdan`s» / «… Bohdan`s winery») with the same description, so a wine
+ * matches on its name or its description. Other drinks can share a description (coffee drinks share one bean card),
+ * so they match on the name only.
+ */
+export function listingKeys(name: string, description: string, isWine: boolean): string[] {
+  const keys = [`n:${listingTitle(name).toLowerCase()}`];
+  const text = tidy(description).replace(/\s+/g, ' ');
+  if (isWine && text) keys.push(`d:${text.slice(0, 120).toLowerCase()}`);
+  return keys;
+}

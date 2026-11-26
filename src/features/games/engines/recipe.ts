@@ -7,6 +7,13 @@ import { pickDistinct } from './common';
 export const RECIPE_ROUNDS = 5;
 const CHOICES = 8;
 const MAX_CORRECT = 4;
+// A list part longer than this is prose («Ароматний салат з буратою…»), not an ingredient
+const MAX_PART = 40;
+
+/** True when a composition reads as a list of ingredients, so its parts make sensible answer chips. */
+export function isIngredientList(parts: readonly string[]): boolean {
+  return parts.length >= 3 && parts.every((p) => p.length <= MAX_PART);
+}
 
 /** Splits «a, b (c, d), e.» on top-level commas only. */
 export function splitIngredients(text: string): string[] {
@@ -40,12 +47,12 @@ export interface RecipeRound {
 }
 
 export function buildRecipe(items: readonly MenuItem[], rng: () => number = Math.random): RecipeRound[] {
-  const food = items.filter((i) => i.category === 'food');
+  // Dishes whose composition is a description, not a list, sit out (both as rounds and as distractors).
+  const food = items.filter(
+    (i) => i.category === 'food' && isIngredientList(splitIngredients(i.ingredients)),
+  );
   const parts = new Map(food.map((i) => [i.id, splitIngredients(i.ingredients)]));
-  const dishes = shuffle(
-    food.filter((i) => parts.get(i.id)!.length >= 3),
-    rng,
-  ).slice(0, RECIPE_ROUNDS);
+  const dishes = shuffle(food, rng).slice(0, RECIPE_ROUNDS);
 
   return dishes.map((dish) => {
     const own = parts.get(dish.id)!;

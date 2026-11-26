@@ -14,7 +14,8 @@ export default function BoxDistributionPanel({
   progress: readonly CardProgress[];
 }) {
   const { unseen, boxes } = boxDistribution(items, progress);
-  const total = items.length;
+  // cards with nothing to learn are not in the deck, so they are not in the total either
+  const total = unseen + boxes.reduce((n, b) => n + b, 0);
   return (
     <section className="flex flex-col gap-3" aria-labelledby="box-distribution">
       <SectionTitle as="h2" size="sm">

@@ -29,7 +29,9 @@ export function useCardsScreen() {
     items,
     // Without saved progress (e.g. offline on first run) every card counts as new.
     progress: progress.data ?? [],
-    ready: !!menu.data && (progress.isSuccess || progress.isError || progress.fetchStatus === 'idle'),
+    // Wait for a running progress fetch, so the deck is not built from a restored copy that misses the last
+    // answers. Offline the fetch is paused, and the cached progress is used.
+    ready: !!menu.data && progress.fetchStatus !== 'fetching',
     failed: menu.isError && !menu.data,
     retry: () => menu.refetch(),
     practiceAll: run.practiceAll,
