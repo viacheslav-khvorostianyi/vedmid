@@ -5,15 +5,16 @@
 //   ["scotch", 1]     → candidate 1 found for another key (downloaded as this key's own file)
 //   "sparkling-wine"  → share that key's photo (no file of its own)
 // Keys without a pick keep the placeholder.
-// Output: public/demo-photos/{key}.webp (800×500, 16:10) and supabase/seed/stockPhotos.ts.
+// Output: public/demo-photos/stock/{key}.webp (800×500, 16:10) and supabase/seed/stockPhotos.ts.
 import { existsSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
+import { CHOICEQR_ITEMS } from '../../supabase/seed/choiceqrMenu';
 import { ITEM_PHOTO } from './queries';
 import type { Candidate } from './search';
 
-const OUT_DIR = 'public/demo-photos';
+const OUT_DIR = 'public/demo-photos/stock';
 const MANIFEST = 'supabase/seed/stockPhotos.ts';
 
 type Pick = number | string | [string, number];
@@ -63,13 +64,18 @@ async function main() {
   const picks = JSON.parse(await readFile(picksFile, 'utf8')) as Record<string, Pick>;
   await mkdir(OUT_DIR, { recursive: true });
 
+  // Items with the restaurant's own photo (scripts/choiceqr/sync.ts) need no stock photo.
+  const shared = Object.fromEntries(
+    Object.entries(picks).filter((e): e is [string, string] => typeof e[1] === 'string'),
+  );
+  const needed = new Set(
+    Object.entries(ITEM_PHOTO)
+      .filter(([itemId]) => !CHOICEQR_ITEMS[itemId.replace(/^item-/, '')]?.photo)
+      .map(([, key]) => shared[key] ?? key),
+  );
   const photos: Record<string, { text: string; url: string }> = {};
-  const shared: Record<string, string> = {};
   for (const [key, pick] of Object.entries(picks).sort()) {
-    if (typeof pick === 'string') {
-      shared[key] = pick;
-      continue;
-    }
+    if (typeof pick === 'string' || !needed.has(key)) continue;
     const [from, index] = typeof pick === 'number' ? [key, pick] : pick;
     const c = candidates[from]?.[index];
     if (!c) throw new Error(`${key}: no candidate ${index} of ${from}`);
@@ -89,14 +95,18 @@ async function main() {
     console.log(`${key} ← ${c.url}`);
   }
 
-  for (const [key, target] of Object.entries(shared)) {
-    if (!photos[target]) throw new Error(`${key}: shares ${target}, which has no photo`);
+  // keys without a pick keep the placeholder; a share must point at a key that has a photo
+  for (const key of needed) {
+    if (key in picks && !photos[key]) throw new Error(`${key}: shared, but its target has no photo`);
   }
   const items = Object.fromEntries(
     Object.entries(ITEM_PHOTO)
       .map(([itemId, key]) => [itemId.replace(/^item-/, ''), shared[key] ?? key] as const)
-      .filter(([, key]) => photos[key]),
+      .filter(([id, key]) => photos[key] && !CHOICEQR_ITEMS[id]?.photo),
   );
+  for (const file of await readdir(OUT_DIR)) {
+    if (!photos[file.replace(/\.webp$/, '')]) await rm(path.join(OUT_DIR, file));
+  }
   const source = (await readFile(MANIFEST, 'utf8')).replace(
     /export const STOCK_PHOTOS[\s\S]*$/,
     `export const STOCK_PHOTOS: Record<string, StockPhoto> = ${JSON.stringify(photos, null, 2)};\n\n` +

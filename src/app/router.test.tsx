@@ -23,9 +23,11 @@ describe('router', () => {
 
   it('swaps shells on resize without losing the route', async () => {
     const router = renderAt('/menu/item-soup-1');
-    expect(await heading()).toHaveTextContent('Борщ з пампушкою');
+    expect(await heading()).toHaveTextContent('Борщ з гречаним хлібом');
     act(() => setViewportWidth(1440));
-    expect(await screen.findByRole('heading', { level: 2, name: /Борщ з пампушкою/ })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 2, name: /Борщ з гречаним хлібом/ }),
+    ).toBeInTheDocument();
     expect(document.querySelector('[data-shell="desktop"]')).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/menu/item-soup-1');
   });

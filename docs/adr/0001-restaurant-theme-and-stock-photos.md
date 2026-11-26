@@ -26,11 +26,22 @@ so it is used at ≥ 16px and semibold or bold.
   «ілюстративне фото · author, licence», with a link to the source. This satisfies CC BY attribution and tells
   waiters that the plating is not ours.
 - Uploading a real photo (E7-3) must set `photo_credit = null`.
-- Files are 800×500 WebP in `public/demo-photos/` (shipped with the demo and uploaded by `npm run db:seed`).
+- Files are 800×500 WebP in `public/demo-photos/stock/` (shipped with the demo and uploaded by `npm run db:seed`).
   `scripts/photos/` reproduces them: `queries.ts` (item → key → query), `search.ts` (candidates + contact sheets
   for review), `download.ts` (picked candidates → WebP + `supabase/seed/stockPhotos.ts`).
 - `sharp` is a devDependency used only by these scripts. Its install script is denied (`allowScripts`), because
   the prebuilt `@img/sharp-*` binaries need no build.
+
+## Update — the restaurant's own menu (2026-11-26)
+The restaurant's public menu (lis-resto.choiceqr.com) has its own photos and current dish descriptions.
+`scripts/choiceqr/sync.ts` reads its embedded page data for 144 hand-mapped items:
+- **Photos:** 122 of the restaurant's own photos (`public/demo-photos/own/`, no credit caption) replace stock ones.
+  Stock photos now cover only the 74 items without an own photo (43 files); unused ones are pruned.
+- **Text:** the site's titles, composition, 🍷 pairing and wine sweetness/grape override `src/data`. The site wins
+  for dishes whose recipe changed. For an unchanged dish, a site blurb shorter than 80% of our composition does not
+  replace it, and a coffee bean card is appended to the composition. Wine, spirits and beer keep our titles,
+  which carry the region. Training fields are never synced.
+- Items no longer on the site are left as they are. Site-only items are not added; managers add them in the app.
 
 ## Consequences
 - The design proposal artifact is out of date for colour and typography. DESIGN.md wins on those until it is refreshed.

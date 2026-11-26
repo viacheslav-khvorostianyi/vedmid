@@ -11,7 +11,7 @@ export interface DemoBackend {
   setState: (s: DemoState) => void;
   getRole: () => StaffRole;
   now?: () => Date;
-  /** Absolute URL of the folder with the stock photos (public/demo-photos), ending in `/` */
+  /** Absolute URL of public/demo-photos (holds stock/ and own/), ending in `/` */
   photoBase?: string;
 }
 
@@ -118,11 +118,14 @@ export function createDemoHandlers(backend: DemoBackend): HttpHandler[] {
     }),
     http.post(`${url}/rest/v1/rpc/is_manager`, () => HttpResponse.json(backend.getRole() === 'manager')),
 
-    // Stock photos: Storage URLs are answered with the copies the demo build ships in public/demo-photos.
-    http.get(`${url}/storage/v1/object/public/dish-photos/stock/:file`, async ({ params }) => {
+    // Dish photos: Storage URLs are answered with the copies the demo build ships in public/demo-photos
+    // (stock/ = illustrative, own/ = the restaurant's photos from its online menu).
+    http.get(`${url}/storage/v1/object/public/dish-photos/:folder/:file`, async ({ params }) => {
+      if (params.folder !== 'stock' && params.folder !== 'own')
+        return new HttpResponse(null, { status: 404 });
       const base =
         backend.photoBase ?? new URL(`${import.meta.env.BASE_URL}demo-photos/`, location.origin).href;
-      const res = await fetch(bypass(new URL(String(params.file), base).href));
+      const res = await fetch(bypass(new URL(`${params.folder}/${params.file}`, base).href));
       if (!res.ok) return new HttpResponse(null, { status: 404 });
       return new HttpResponse(await res.arrayBuffer(), { headers: { 'Content-Type': 'image/webp' } });
     }),

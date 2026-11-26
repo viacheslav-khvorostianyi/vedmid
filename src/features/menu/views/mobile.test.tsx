@@ -11,7 +11,7 @@ describe('MenuListView (mobile)', () => {
     expect(await screen.findByRole('heading', { level: 2, name: 'дитяче меню' })).toBeInTheDocument();
     const soups = screen.getByRole('region', { name: 'перші страви' });
     expect(within(soups).getAllByRole('link')).toHaveLength(4);
-    expect(within(soups).getByRole('link', { name: /Борщ з пампушкою/ })).toHaveAttribute(
+    expect(within(soups).getByRole('link', { name: /Борщ з гречаним хлібом/ })).toHaveAttribute(
       'href',
       '/menu/item-soup-1',
     );
@@ -54,24 +54,39 @@ describe('MenuListView (mobile)', () => {
 describe('ItemDetailView (mobile)', () => {
   it('shows a food item with allergens first, then composition and the empty pairing state', async () => {
     renderRoute('/menu/item-soup-1');
-    expect(await screen.findByRole('heading', { level: 1, name: /Борщ з пампушкою/ })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 1, name: /Борщ з гречаним хлібом/ }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('tabpanel', { name: 'алергени' })).toHaveTextContent('глютен, лактоза');
     await userEvent.click(screen.getByRole('tab', { name: 'склад' }));
-    expect(screen.getByRole('tabpanel', { name: 'склад' })).toHaveTextContent('Овочевий бульйон');
+    expect(screen.getByRole('tabpanel', { name: 'склад' })).toHaveTextContent(
+      'гречаним хлібом власного приготування',
+    );
     await userEvent.click(screen.getByRole('tab', { name: 'поєднання' }));
     expect(screen.getByText('поєднання ще не заповнене')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'фраза для продажу' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'цікавий факт' })).toBeInTheDocument();
     expect(screen.getByText('оновлено 26.09.2026')).toBeInTheDocument();
+    // the restaurant's own photo: no «ілюстративне» caption
     expect(
-      screen.getByRole('img', { name: 'ілюстрація: Борщ з пампушкою та салом із чорним часником' }),
-    ).toHaveAttribute('src', expect.stringContaining('dish-photos/stock/borscht.webp'));
+      screen.getByRole('img', { name: 'фото подачі: Борщ з гречаним хлібом та салом з чорного часнику' }),
+    ).toHaveAttribute('src', expect.stringContaining('dish-photos/own/soup-1.webp'));
+    expect(screen.queryByText(/ілюстративне фото/)).not.toBeInTheDocument();
+  });
+
+  it('labels an illustrative stock photo with its credit', async () => {
+    renderRoute('/menu/item-kid-6');
+    await screen.findByRole('heading', { level: 1, name: /Міні бургер/ });
+    expect(screen.getByRole('img', { name: 'ілюстрація: Міні бургер' })).toHaveAttribute(
+      'src',
+      expect.stringContaining('dish-photos/stock/mini-burger.webp'),
+    );
     expect(screen.getByRole('figure')).toHaveTextContent(/ілюстративне фото · .+, CC/);
   });
 
   it('keeps the placeholder for an item without a photo', async () => {
-    renderRoute('/menu/item-cold-5');
-    await screen.findByRole('heading', { level: 1, name: /Форшмак/ });
+    renderRoute('/menu/item-hot-dish-9');
+    await screen.findByRole('heading', { level: 1, name: /реберця/ });
     expect(screen.getByRole('img', { name: /фото подачі/ })).toHaveTextContent('фото подачі');
     expect(screen.queryByText(/ілюстративне фото/)).not.toBeInTheDocument();
   });
@@ -93,7 +108,7 @@ describe('ItemDetailView (mobile)', () => {
 
   it('returns to the list with the search intact when opened from it', async () => {
     const { router } = renderRoute('/menu?q=%D0%B1%D0%BE%D1%80%D1%89');
-    await userEvent.click(await screen.findByRole('link', { name: /Борщ з пампушкою/ }));
+    await userEvent.click(await screen.findByRole('link', { name: /Борщ з гречаним хлібом/ }));
     await userEvent.click(await screen.findByRole('button', { name: /назад/ }));
     expect(router.state.location.pathname).toBe('/menu');
     expect(screen.getByRole('searchbox')).toHaveValue('борщ');

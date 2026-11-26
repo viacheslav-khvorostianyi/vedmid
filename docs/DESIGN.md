@@ -80,7 +80,7 @@ Spacing: 4px base. Side gutter is 16px on mobile and 24px on desktop. Gap betwee
 | `ItemCard` | 1px line border, radius 12, min-height 112 (mobile) / 96 (desktop), centred serif title. With a photo: a 72px (64px compact) rounded thumbnail on the left and a left-aligned title. Badges top-right; bestseller «★ хіт» uses the brass `accent` tag. Selected state on desktop: `green/35%` fill. Menu lists render it via `features/menu/components/MenuItemCard` |
 | `SegmentedTabs` | Row of equal chips. Used in detail (алергени / склад / поєднання; wine adds сорт / виробник) |
 | `Panel` | Green fill, radius 12, padding 12×14, on-green text |
-| `Photo` | 16:10 (mobile) / 16:9 (desktop) green placeholder with «фото подачі» until `photo_path` exists. `loading="lazy"`, WebP from Supabase Storage. Stock photos (`photo_credit` set) get the caption «ілюстративне фото · {author, licence}» linking to the source (required by CC BY) |
+| `Photo` | 16:10 (mobile) / 16:9 (desktop) green placeholder with «фото подачі» until `photo_path` exists. `loading="lazy"`, WebP from Supabase Storage. The restaurant's own photos (from its online menu) show without a caption. Stock photos (`photo_credit` set) get the caption «ілюстративне фото · {author, licence}» linking to the source (required by CC BY) |
 | `Button` | `ok` (green / white), `no` (warn-bg / warn), `ghost` (outline). Height ≥ 48 on mobile |
 | `BottomNav` | 4 chips in a grid: меню · картки · ігри · профіль. Divider above, `padding-bottom: env(safe-area-inset-bottom)`. Label «картки» in full (the PDF truncates it only because of mockup width) |
 | `Sidebar` (desktop) | 232px, bg-deep, lockup, nav items with key hints 1–4 (M for manager), user block at the bottom |
