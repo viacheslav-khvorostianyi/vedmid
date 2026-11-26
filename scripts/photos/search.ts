@@ -14,6 +14,8 @@ const PER_KEY = 4;
 const ROWS_PER_SHEET = 8;
 const CELL = { w: 240, h: 150 };
 const LABEL_W = 200;
+// sharp 0.35's typings no longer expose the OverlayOptions namespace member; take it from composite()
+type OverlayOptions = Parameters<ReturnType<typeof sharp>['composite']>[0][number];
 
 export interface Candidate {
   id: string;
@@ -99,7 +101,7 @@ function label(text: string, w: number, h: number): Buffer {
 async function sheet(rows: [string, (Buffer | null)[]][], file: string) {
   const width = LABEL_W + PER_KEY * (CELL.w + 4);
   const height = rows.length * (CELL.h + 4);
-  const layers: sharp.OverlayOptions[] = [];
+  const layers: OverlayOptions[] = [];
   rows.forEach(([key, thumbs], r) => {
     const top = r * (CELL.h + 4);
     layers.push({ input: label(key, LABEL_W, CELL.h), top, left: 0 });
