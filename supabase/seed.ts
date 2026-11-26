@@ -11,7 +11,7 @@ import { readFile } from 'node:fs/promises';
 import { menuData } from '../src/data/menuData';
 import type { Database } from '../src/lib/db.types';
 import { buildSeed, ownPhotoPath, stockPhotoPath } from './seed/buildSeed';
-import { CHOICEQR_ITEMS } from './seed/choiceqrMenu';
+import { CHOICEQR_ITEMS, CHOICEQR_NEW_ITEMS } from './seed/choiceqrMenu';
 import { guestScenarios } from './seed/guestScenarios';
 import { STOCK_PHOTO_ITEMS, STOCK_PHOTOS } from './seed/stockPhotos';
 import { writeSeed, type SeedMode, type SeedWriter } from './seed/writeSeed';
@@ -30,9 +30,13 @@ console.log(
 );
 console.log('Items per category id:', Object.fromEntries(byCategory));
 
-const ownIds = Object.entries(CHOICEQR_ITEMS)
-  .filter(([, item]) => item.photo)
-  .map(([id]) => id);
+// mapped items and items only on the site; new rows already point at own/ when the seed inserts them
+const ownIds = [
+  ...Object.entries(CHOICEQR_ITEMS)
+    .filter(([, item]) => item.photo)
+    .map(([id]) => id),
+  ...CHOICEQR_NEW_ITEMS.filter((item) => item.photo).map((item) => item.id),
+];
 const stockKeys = Object.keys(STOCK_PHOTOS);
 const uploads = [
   ...ownIds.map((id) => ({ path: ownPhotoPath(id), file: `public/demo-photos/${ownPhotoPath(id)}` })),

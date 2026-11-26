@@ -63,15 +63,15 @@ function pgWriter(db: PGlite): SeedWriter & { changed: number } {
 describe('buildSeed', () => {
   const plan = buildSeed(menuData, guestScenarios);
 
-  it('validates all 197 items with the expected split per category', () => {
+  it('validates all 292 items with the expected split per category', () => {
     const perCategory = plan.items.reduce<Record<string, number>>((acc, i) => {
       const cat = i.subcategoryKey.split(':')[0];
       acc[cat] = (acc[cat] ?? 0) + 1;
       return acc;
     }, {});
-    expect(plan.items).toHaveLength(197);
+    expect(plan.items).toHaveLength(292);
     // food, wine, cocktails, beer_soft, spirits
-    expect(perCategory).toEqual({ 1: 59, 2: 37, 3: 31, 4: 43, 5: 27 });
+    expect(perCategory).toEqual({ 1: 82, 2: 56, 3: 41, 4: 58, 5: 55 });
   });
 
   it('orders subcategories by first appearance within each category', () => {
@@ -121,11 +121,11 @@ describe('writeSeed into the real schema', () => {
        group by c.slug order by c.slug`,
     );
     expect(Object.fromEntries(rows.map((r) => [r.slug, r.n]))).toEqual({
-      beer_soft: 43,
-      cocktails: 31,
-      food: 59,
-      spirits: 27,
-      wine: 37,
+      beer_soft: 58,
+      cocktails: 41,
+      food: 82,
+      spirits: 55,
+      wine: 56,
     });
     expect((await db.query('select 1 from public.guest_scenarios')).rows).toHaveLength(5);
   });

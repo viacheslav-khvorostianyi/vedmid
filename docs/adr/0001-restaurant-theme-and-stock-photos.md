@@ -41,7 +41,17 @@ The restaurant's public menu (lis-resto.choiceqr.com) has its own photos and cur
   for dishes whose recipe changed. For an unchanged dish, a site blurb shorter than 80% of our composition does not
   replace it, and a coffee bean card is appended to the composition. Wine, spirits and beer keep our titles,
   which carry the region. Training fields are never synced.
-- Items no longer on the site are left as they are. Site-only items are not added; managers add them in the app.
+- Items no longer on the site are left as they are.
+
+## Update — items only on the site (2026-11-26)
+- 95 items that exist only on the site are added (`cq-<slug>`, 292 items in total), placed by `scripts/choiceqr/additions.ts`.
+  New subcategories: Паляниці з печі, Оранж вина, Гарячі коктейлі, Джин, Горілка, Настоянки, Лікери та бітери.
+  Wines listed per glass and per bottle are added once (matched by name or description).
+- Eight app wines were matched to their Latin-spelled site names (Citronniy Magaracha, Rhyolite, Saperavi…) instead of being
+  added twice.
+- Their anchor, sales phrase, fact and allergens start empty for managers to fill in. Flashcards skip items with nothing
+  to learn (35, mostly spirits without a description). The recipe game uses only list-style compositions, because the
+  site's prose descriptions made poor answer chips.
 
 ## Consequences
 - The design proposal artifact is out of date for colour and typography. DESIGN.md wins on those until it is refreshed.

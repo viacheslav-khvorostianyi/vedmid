@@ -77,7 +77,7 @@ docs/         ARCHITECTURE, DESIGN, BACKLOG, agents/, adr/
 - Menu data comes from `useMenu()`, `useMenuSections()`, `useItem()` and `useMenuSearch()` (`features/menu/hooks/useMenu.ts`), all backed by the single cached `['menu']` query. Pure logic (grouping, search, detail tabs) lives in `features/menu/model.ts`.
 - List state lives in the URL (`?c=&q=&s=`) via `useMenuParams()`. Updates use `replace` and `flushSync`, because the search box is controlled by the URL.
 - Route views are `React.lazy` in `src/app/router.tsx`. Each shell wraps its `<Outlet/>` in `Suspense`.
-- Tests: `src/test/menuFixture.ts` gives the real 197-item menu (`MENU`, `MENU_ROWS`, ids like `item-soup-1`). `renderRoute()` pre-caches it, and the e2e fixtures serve the same rows.
+- Tests: `src/test/menuFixture.ts` gives the real 292-item menu (`MENU`, `MENU_ROWS`, ids like `item-soup-1`). `renderRoute()` pre-caches it, and the e2e fixtures serve the same rows.
 
 ## Progress & flashcards conventions (from E4)
 - Record every answer with `useRecordAnswer()` (`features/progress/hooks.ts`). It calls the `record_answer` RPC (queued offline), updates the `['stats', userId]` cache, and toasts achievements and level-ups. Never compute XP on the client.
@@ -101,7 +101,8 @@ docs/         ARCHITECTURE, DESIGN, BACKLOG, agents/, adr/
 - `src/demo/handlers.ts` answers every Supabase endpoint the app uses. When you add a table query or RPC, add a handler; unknown requests get a 501 that names the endpoint.
 - `src/demo/server.ts` mirrors `record_answer` / `finish_game`. When you change those SQL functions, change this too; `server.test.ts` and `handlers.test.ts` cover it.
 - The seed data (`supabase/seed/`: fixture rows, guest rows, `achievements.ts`) is shared by the unit tests, the e2e fixtures and the demo. `seed.test.ts` checks `achievements.ts` against the migration.
-- Menu content follows the restaurant's online menu (lis-resto.choiceqr.com): `npx tsx scripts/choiceqr/sync.ts` writes `supabase/seed/choiceqrMenu.ts` (titles, composition, pairing, wine grape/sweetness) and `public/demo-photos/own/{legacyId}.webp`; `buildSeed` applies it over `src/data`. The item mapping (`scripts/choiceqr/mapping.ts`) is reviewed by hand; when the site drops a mapped item the sync fails, so update the mapping. Training fields (anchor, sales, fact, allergens, profile, producer) are ours and never synced.
+- Menu content follows the restaurant's online menu (lis-resto.choiceqr.com): `npx tsx scripts/choiceqr/sync.ts` writes `supabase/seed/choiceqrMenu.ts` (titles, composition, pairing, wine grape/sweetness) and `public/demo-photos/own/{legacyId}.webp`; `buildSeed` applies it over `src/data`. The item mapping (`scripts/choiceqr/mapping.ts`) is reviewed by hand; when the site drops a mapped item the sync fails, so update the mapping. Training fields (anchor, sales, fact, allergens, profile, producer) are ours and never synced. Items only on the site are added as `cq-<slug>` (placed by `scripts/choiceqr/additions.ts`; an unknown site category stops the sync) with empty training fields for managers to fill in.
+- Flashcards skip items with nothing to learn (`hasStudyText` in `leitner.ts`: no composition, anchor or sales phrase), and the deck panel counts the same cards. The recipe game only uses compositions that read as ingredient lists (`isIngredientList`).
 - Photos: the restaurant's own (`own/`) win over illustrative stock ones (`stock/`, `supabase/seed/stockPhotos.ts`, only for items without an own photo). The demo serves both for `dish-photos/{own,stock}/*`; `npm run db:seed` uploads them. To change stock photos, edit `scripts/photos/queries.ts` and rerun `search.ts` → `download.ts` (see ADR 0001).
 
 ## Data & auth conventions (from E2)
