@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { startDemo } from './startDemo';
-import { isFirstVisit, resetDemo } from './storage';
+import { getRestaurant, isFirstVisit, resetDemo } from './storage';
+import { getBrand } from '@/lib/brand';
 
 vi.mock('msw/browser', () => ({ setupWorker: () => ({ start: vi.fn(async () => undefined) }) }));
 
@@ -27,5 +28,31 @@ describe('startDemo first visit', () => {
   it('ignores the old v1 flag that a failed Safari sign-in could have left behind', () => {
     localStorage.setItem('vedmid-demo:started', '1');
     expect(isFirstVisit()).toBe(true);
+  });
+});
+
+describe('startDemo restaurant link', () => {
+  beforeEach(() => resetDemo());
+  afterEach(() => window.history.replaceState(null, '', '/'));
+
+  it('switches to the restaurant named in ?r= and keeps it', async () => {
+    window.history.replaceState(null, '', '/menu?r=delikacia');
+    await startDemo();
+    expect(getRestaurant()).toBe('delikacia');
+    expect(getBrand().name).toBe('Delikacia');
+
+    window.history.replaceState(null, '', '/menu');
+    await startDemo();
+    expect(getRestaurant()).toBe('delikacia');
+
+    window.history.replaceState(null, '', '/menu?r=lis');
+    await startDemo();
+    expect(getRestaurant()).toBe('lis');
+  });
+
+  it('ignores an unknown restaurant', async () => {
+    window.history.replaceState(null, '', '/menu?r=nope');
+    await startDemo();
+    expect(getRestaurant()).toBe('lis');
   });
 });

@@ -1,21 +1,46 @@
 import { setupWorker } from 'msw/browser';
+import { setBrand } from '@/lib/brand';
+import { queryPersister } from '@/lib/queryClient';
 import { supabase } from '@/lib/supabase';
+import { isRestaurantId, RESTAURANTS } from '../../supabase/seed/restaurants';
 import DemoBar from './DemoBar';
 import { createDemoHandlers } from './handlers';
 import { DEMO_PEOPLE, demoSession } from './session';
-import { getRole, isFirstVisit, loadState, markStarted, saveState } from './storage';
+import {
+  getRestaurant,
+  getRole,
+  isFirstVisit,
+  loadState,
+  markStarted,
+  saveState,
+  setRestaurant,
+} from './storage';
+
+/**
+ * A link can pick the restaurant: `?r=delikacia` or `?r=lis`. Switching drops the app's saved query cache, which
+ * still holds the other restaurant's menu.
+ */
+async function applyRestaurantLink(search: string) {
+  const fromLink = new URLSearchParams(search).get('r');
+  if (!isRestaurantId(fromLink) || fromLink === getRestaurant()) return;
+  setRestaurant(fromLink);
+  await queryPersister.removeClient();
+}
 
 /**
  * Demo mode (`npm run demo`): a service worker answers every Supabase request from the built-in menu and a
  * local demo state, so the real app runs without a backend. Returns the demo bar to render next to the app.
  */
 export async function startDemo() {
+  await applyRestaurantLink(window.location.search);
+  setBrand(RESTAURANTS[getRestaurant()]);
   const worker = setupWorker(
     ...createDemoHandlers({
       url: import.meta.env.VITE_SUPABASE_URL,
       getState: loadState,
       setState: saveState,
       getRole,
+      getRestaurant,
     }),
   );
   await worker.start({

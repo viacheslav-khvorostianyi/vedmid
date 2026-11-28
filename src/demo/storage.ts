@@ -1,15 +1,20 @@
 import type { StaffRole } from '@/features/auth/context';
+import { isRestaurantId, type RestaurantId } from '../../supabase/seed/restaurants';
 import { emptyState, type DemoState } from './server';
 
 // Demo data lives only in this browser. Every access is guarded: storage can be blocked (private mode).
 
 // `started` is versioned: v1 could be set by a failed first sign-in (Safari mixed-content bug), so browsers that
 // saw it get one fresh automatic sign-in.
+// Each restaurant keeps its own progress; «Просто ЛІС» keeps the original key so earlier progress stays.
 const KEYS = {
   state: 'vedmid-demo:state',
+  stateDelikacia: 'vedmid-demo:state:delikacia',
+  restaurant: 'vedmid-demo:restaurant',
   role: 'vedmid-demo:role',
   started: 'vedmid-demo:started:v2',
 } as const;
+const STATE_KEY: Record<RestaurantId, string> = { lis: KEYS.state, delikacia: KEYS.stateDelikacia };
 
 function read(key: string): string | null {
   try {
@@ -27,12 +32,18 @@ function write(key: string, value: string | null) {
   }
 }
 
+export function getRestaurant(): RestaurantId {
+  const value = read(KEYS.restaurant);
+  return isRestaurantId(value) ? value : 'lis';
+}
+export const setRestaurant = (id: RestaurantId) => write(KEYS.restaurant, id);
+
 let memory: DemoState | null = null;
 
 export function loadState(): DemoState {
   if (memory) return memory;
   try {
-    memory = { ...emptyState(), ...(JSON.parse(read(KEYS.state) ?? 'null') ?? {}) };
+    memory = { ...emptyState(), ...(JSON.parse(read(STATE_KEY[getRestaurant()]) ?? 'null') ?? {}) };
   } catch {
     memory = emptyState();
   }
@@ -41,7 +52,7 @@ export function loadState(): DemoState {
 
 export function saveState(state: DemoState) {
   memory = state;
-  write(KEYS.state, JSON.stringify(state));
+  write(STATE_KEY[getRestaurant()], JSON.stringify(state));
 }
 
 export const getRole = (): StaffRole => (read(KEYS.role) === 'manager' ? 'manager' : 'waiter');

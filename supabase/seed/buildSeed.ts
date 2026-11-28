@@ -2,7 +2,7 @@ import type { SeedCategory, SeedMenuItem } from '../../src/data/types';
 import { menuItemInputSchema, type MenuItemInput } from '../../src/features/manager/schema';
 import type { TablesInsert } from '../../src/lib/db.types';
 import type { SeedGuestScenario } from './guestScenarios';
-import { CHOICEQR_ITEMS, CHOICEQR_NEW_ITEMS } from './choiceqrMenu';
+import { CHOICEQR_ITEMS, CHOICEQR_NEW_ITEMS, type ChoiceqrItem } from './choiceqrMenu';
 import { STOCK_PHOTO_ITEMS, STOCK_PHOTOS } from './stockPhotos';
 
 /** Mirrors the ids seeded into public.categories by 0001_init.sql. */
@@ -20,17 +20,22 @@ export const stockPhotoPath = (key: string) => `stock/${key}.webp`;
 /** Storage path of the restaurant's own photo (from its online menu) in the dish-photos bucket. */
 export const ownPhotoPath = (legacyId: string) => `own/${legacyId}.webp`;
 
-const OWN_PHOTOS = new Set([
-  ...Object.entries(CHOICEQR_ITEMS)
-    .filter(([, item]) => item.photo)
-    .map(([id]) => id),
-  ...CHOICEQR_NEW_ITEMS.filter((item) => item.photo).map((item) => item.id),
-]);
+/**
+ * Where a restaurant's menu comes from, besides its item list: overlays from its online menu, which items have
+ * its own photo (and where), and stock photos for the rest.
+ */
+export interface SeedSource {
+  extraItems: readonly SeedMenuItem[];
+  overlay: Readonly<Record<string, ChoiceqrItem>>;
+  ownPhotos: ReadonlySet<string>;
+  ownPhotoPath: (legacyId: string) => string;
+  stockPhotos: Readonly<Record<string, string>>;
+}
 
 /** The restaurant's own photo wins over an illustrative stock photo, which wins over none. */
-function photo(legacyId: string) {
-  if (OWN_PHOTOS.has(legacyId)) return { photoPath: ownPhotoPath(legacyId), photoCredit: null };
-  const key = STOCK_PHOTO_ITEMS[legacyId];
+function photo(source: SeedSource, legacyId: string) {
+  if (source.ownPhotos.has(legacyId)) return { photoPath: source.ownPhotoPath(legacyId), photoCredit: null };
+  const key = source.stockPhotos[legacyId];
   const credit = key ? STOCK_PHOTOS[key] : undefined;
   return key && credit
     ? { photoPath: stockPhotoPath(key), photoCredit: credit }
@@ -63,7 +68,6 @@ export const optional = (value: string | undefined): string | null =>
   !value || PLACEHOLDER.test(value) ? null : value;
 const subKey = (categoryId: number, name: string) => `${categoryId}:${name}`;
 
-/** Turns the legacy static data into validated DB-ready rows. Throws listing every invalid item. */
 /**
  * Items that are only on the restaurant's online menu (scripts/choiceqr/sync.ts). Their training fields start
  * empty: managers fill in the anchor, sales phrase and allergens in the app.
@@ -81,11 +85,27 @@ export const SITE_ONLY_ITEMS: SeedMenuItem[] = CHOICEQR_NEW_ITEMS.map((item) => 
   sweetness: item.sweetness,
 }));
 
+/** «Просто ЛІС»: the legacy data, updated and extended from lis-resto.choiceqr.com. */
+export const LIS_SOURCE: SeedSource = {
+  extraItems: SITE_ONLY_ITEMS,
+  overlay: CHOICEQR_ITEMS,
+  ownPhotos: new Set([
+    ...Object.entries(CHOICEQR_ITEMS)
+      .filter(([, item]) => item.photo)
+      .map(([id]) => id),
+    ...CHOICEQR_NEW_ITEMS.filter((item) => item.photo).map((item) => item.id),
+  ]),
+  ownPhotoPath,
+  stockPhotos: STOCK_PHOTO_ITEMS,
+};
+
+/** Turns the static menu data into validated DB-ready rows. Throws listing every invalid item. */
 export function buildSeed(
   legacy: readonly SeedMenuItem[],
   scenarios: readonly SeedGuestScenario[],
+  source: SeedSource = LIS_SOURCE,
 ): SeedPlan {
-  const menu = [...legacy, ...SITE_ONLY_ITEMS];
+  const menu = [...legacy, ...source.extraItems];
   const subcategories = new Map<string, SeedSubcategory>();
   const perSubCount = new Map<string, number>();
   const items: SeedItem[] = [];
@@ -104,7 +124,7 @@ export function buildSeed(
     perSubCount.set(key, sort);
 
     // Current titles, compositions and pairings from the restaurant's online menu (scripts/choiceqr/sync.ts)
-    const site = CHOICEQR_ITEMS[m.id];
+    const site = source.overlay[m.id];
     const parsed = itemSchema.safeParse({
       legacyId: m.id,
       title: site?.title ?? m.title,
@@ -122,7 +142,7 @@ export function buildSeed(
       isFinalist: m.isFinalist ?? false,
       isActive: true,
       sort,
-      ...photo(m.id),
+      ...photo(source, m.id),
     });
     if (parsed.success) items.push({ subcategoryKey: key, input: parsed.data });
     else

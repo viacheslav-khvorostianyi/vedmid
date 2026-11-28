@@ -2,6 +2,7 @@ import { http, HttpResponse, type HttpHandler, type JsonBodyType } from 'msw';
 import type { StaffRole } from '@/features/auth/context';
 import { ACHIEVEMENT_ROWS } from '../../supabase/seed/achievements';
 import { buildFixtureRows, buildGuestRows } from '../../supabase/seed/fixtureRows';
+import type { RestaurantId } from '../../supabase/seed/restaurants';
 import { finishGame, recordAnswer, type AnswerInput, type DemoState } from './server';
 import { DEMO_PEOPLE, DEMO_USER_ID, demoSession, demoUser } from './session';
 
@@ -10,6 +11,8 @@ export interface DemoBackend {
   getState: () => DemoState;
   setState: (s: DemoState) => void;
   getRole: () => StaffRole;
+  /** «Просто ЛІС» when left out */
+  getRestaurant?: () => RestaurantId;
   now?: () => Date;
 }
 
@@ -35,7 +38,12 @@ function rows(request: Request, list: JsonBodyType[]) {
 export function createDemoHandlers(backend: DemoBackend): HttpHandler[] {
   const { url } = backend;
   const now = backend.now ?? (() => new Date());
-  const menu = buildFixtureRows();
+  const built = new Map<RestaurantId, ReturnType<typeof buildFixtureRows>>();
+  const menu = () => {
+    const id = backend.getRestaurant?.() ?? 'lis';
+    if (!built.has(id)) built.set(id, buildFixtureRows(id));
+    return built.get(id)!;
+  };
   const guest = buildGuestRows();
   const person = () => DEMO_PEOPLE[backend.getRole()];
 
@@ -68,9 +76,9 @@ export function createDemoHandlers(backend: DemoBackend): HttpHandler[] {
         },
       ]),
     ),
-    http.get(`${url}/rest/v1/categories`, ({ request }) => rows(request, menu.categories)),
-    http.get(`${url}/rest/v1/subcategories`, ({ request }) => rows(request, menu.subcategories)),
-    http.get(`${url}/rest/v1/menu_items`, ({ request }) => rows(request, menu.items)),
+    http.get(`${url}/rest/v1/categories`, ({ request }) => rows(request, menu().categories)),
+    http.get(`${url}/rest/v1/subcategories`, ({ request }) => rows(request, menu().subcategories)),
+    http.get(`${url}/rest/v1/menu_items`, ({ request }) => rows(request, menu().items)),
     http.get(`${url}/rest/v1/guest_scenarios`, ({ request }) => rows(request, guest)),
     http.get(`${url}/rest/v1/achievements`, ({ request }) => rows(request, ACHIEVEMENT_ROWS)),
     http.get(`${url}/rest/v1/player_stats`, ({ request }) =>

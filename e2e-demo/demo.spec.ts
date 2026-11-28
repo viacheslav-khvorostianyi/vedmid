@@ -72,3 +72,27 @@ test('the demo bar switches to the manager role', async ({ page }) => {
   await page.getByRole('button', { name: 'менеджер' }).click();
   await expect(page.getByRole('button', { name: /^демо · менеджер/ })).toBeVisible();
 });
+
+test('the demo bar switches to the second restaurant and back', async ({ page }) => {
+  await page.goto(BASE + 'menu');
+  await page.getByRole('button', { name: /^демо/ }).click();
+  await page.getByRole('button', { name: 'Delikacia' }).click();
+  await expect(page).toHaveURL(/\/vedmid\/menu$/);
+  await expect(page.getByRole('img', { name: 'Delikacia — база знань' }).first()).toBeAttached();
+  await expect(page.getByRole('tab', { name: 'кава й чай' })).toBeVisible();
+  await page.getByRole('searchbox').fill('сирники');
+  await expect(page.getByText('Сирники з маракуєю та сиром Лабне')).toBeVisible();
+
+  await page.getByRole('button', { name: /^демо/ }).click();
+  await page.getByRole('button', { name: 'Просто ЛІС' }).click();
+  await expect(page.getByRole('tab', { name: 'пиво' })).toBeVisible();
+});
+
+test('a link opens each restaurant', async ({ page }) => {
+  await page.goto(BASE + 'menu?r=delikacia');
+  await expect(page.getByRole('tab', { name: 'кава й чай' })).toBeVisible();
+  await page.goto(BASE + 'menu?r=lis');
+  await expect(page.getByRole('tab', { name: 'пиво' })).toBeVisible();
+  await page.goto(BASE + '?r=delikacia');
+  await expect(page.getByRole('tab', { name: 'кава й чай' })).toBeVisible();
+});
