@@ -7,7 +7,6 @@
 //   for managers to fill in. A product listed twice (per glass and per bottle) is added once.
 import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
-import sharp from 'sharp';
 import { menuData } from '../../src/data/menuData';
 import type { SeedMenuItem } from '../../src/data/types';
 import type { ChoiceqrItem, ChoiceqrNewItem } from '../../supabase/seed/choiceqrMenu';
@@ -19,6 +18,7 @@ import {
   parseDescription,
   pickIngredients,
 } from '../../supabase/seed/choiceqrParse';
+import { SYNC_HEADERS as HEADERS, savePhoto } from '../lib/photos';
 import { SITE_CATEGORIES } from './additions';
 import { CHOICEQR_MAPPING } from './mapping';
 
@@ -26,7 +26,6 @@ const ORIGIN = 'https://lis-resto.choiceqr.com';
 const SECTIONS = ['menyu-684', 'napoyi', 'bar', 'vinna-karta', 'micniy-alkogol'];
 const PHOTO_DIR = 'public/demo-photos/own';
 const MANIFEST = 'supabase/seed/choiceqrMenu.ts';
-const HEADERS = { 'User-Agent': 'Mozilla/5.0 (compatible; vedmid-menu-sync/1.0)' };
 // The site's names for these are reformatted brand names («REBREW TOLOKA», «Вино ігристе …»);
 // our titles also carry the region, so they stay.
 const KEEP_TITLE = /^(wine|sp|beer|cider)-/;
@@ -67,16 +66,6 @@ async function fetchSection(section: string): Promise<Listing[]> {
 const tidyCategory = (name: string) => name.replace(/\s+/g, ' ').trim();
 const photoOf = (s: SiteItem) => s.media?.[0]?.webp?.big ?? s.media?.[0]?.big;
 const isWineListing = (s: Listing) => s.section === 'vinna-karta';
-
-async function savePhoto(url: string, file: string) {
-  const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(60_000) });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  await sharp(Buffer.from(await res.arrayBuffer()))
-    .rotate()
-    .resize(800, 500, { fit: 'cover', position: 'attention' })
-    .webp({ quality: 75 })
-    .toFile(file);
-}
 
 function changes(before: SeedMenuItem, after: ChoiceqrItem): string[] {
   const fields = ['title', 'ingredients', 'pairing', 'grapeVarieties', 'sweetness'] as const;

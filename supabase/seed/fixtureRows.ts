@@ -1,20 +1,22 @@
 // DB-shaped rows built from the real seed data, for unit tests (src/test/menuFixture.ts) and e2e mocks.
 // Item ids are deterministic: `item-<legacy id>`.
-import { menuData } from '../../src/data/menuData';
 import { CATEGORIES } from '../../src/features/menu/categories';
 import { toMenuItemRow } from '../../src/features/menu/mappers';
 import type { Tables } from '../../src/lib/db.types';
 import { buildSeed } from './buildSeed';
 import { guestScenarios } from './guestScenarios';
+import { RESTAURANTS, type RestaurantId } from './restaurants';
 
 export const FIXTURE_UPDATED_AT = '2026-09-26T10:00:00.000Z';
 
-export function buildFixtureRows() {
-  const plan = buildSeed(menuData, []);
+/** Rows for one restaurant; «Просто ЛІС» unless the demo picked another. */
+export function buildFixtureRows(restaurantId: RestaurantId = 'lis') {
+  const restaurant = RESTAURANTS[restaurantId];
+  const plan = buildSeed(restaurant.menu(), [], restaurant.source);
   const categories: Tables<'categories'>[] = CATEGORIES.map((c, i) => ({
     id: i + 1,
     slug: c.slug,
-    name: c.name,
+    name: restaurant.tabLabels[c.slug],
     legacy_name: '',
     sort: c.sort,
   }));

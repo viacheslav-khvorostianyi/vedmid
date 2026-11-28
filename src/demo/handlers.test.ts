@@ -6,6 +6,7 @@ import { fetchMenu } from '@/features/menu/api';
 import { buildMenu } from '@/features/menu/model';
 import { fetchAchievements, fetchStats } from '@/features/progress/api';
 import type { StaffRole } from '@/features/auth/context';
+import type { RestaurantId } from '../../supabase/seed/restaurants';
 import { callOrQueue } from '@/lib/rpc';
 import { supabase } from '@/lib/supabase';
 import { createDemoHandlers } from './handlers';
@@ -15,12 +16,14 @@ import { DEMO_USER_ID } from './session';
 // The app's real data functions and supabase-js, answered by the demo handlers.
 let state: DemoState = emptyState();
 let role: StaffRole = 'waiter';
+let restaurant: RestaurantId = 'lis';
 const server = setupServer(
   ...createDemoHandlers({
     url: import.meta.env.VITE_SUPABASE_URL,
     getState: () => state,
     setState: (s) => (state = s),
     getRole: () => role,
+    getRestaurant: () => restaurant,
   }),
 );
 
@@ -28,6 +31,7 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 beforeEach(() => {
   state = emptyState();
   role = 'waiter';
+  restaurant = 'lis';
 });
 afterAll(() => server.close());
 
@@ -43,6 +47,16 @@ describe('demo handlers', () => {
       'ach-4',
       'ach-5',
     ]);
+  });
+
+  it('serve the chosen restaurant’s menu and tab labels', async () => {
+    restaurant = 'delikacia';
+    const rows = await fetchMenu();
+    const menu = buildMenu(rows.categories, rows.subcategories, rows.items);
+    expect(menu.items.every((i) => i.id.startsWith('item-delikacia-'))).toBe(true);
+    expect(menu.categories.map((c) => c.name)).toEqual(['їжа', 'вино', 'коктейлі', 'кава й чай', 'міцні']);
+    restaurant = 'lis';
+    expect((await fetchMenu()).items).toHaveLength(292);
   });
 
   it('serve the profile for the chosen role (.single())', async () => {

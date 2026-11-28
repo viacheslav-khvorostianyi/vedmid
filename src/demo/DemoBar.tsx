@@ -2,7 +2,8 @@ import { useState } from 'react';
 import type { StaffRole } from '@/features/auth/context';
 import { queryPersister } from '@/lib/queryClient';
 import { chipClass } from '@/ui/Chip';
-import { getRole, resetDemo, setRole } from './storage';
+import { RESTAURANT_IDS, RESTAURANTS } from '../../supabase/seed/restaurants';
+import { getRestaurant, getRole, resetDemo, setRestaurant, setRole } from './storage';
 
 const ROLES: { value: StaffRole; label: string }[] = [
   { value: 'waiter', label: 'офіціант' },
@@ -16,10 +17,11 @@ async function reloadFresh(path?: string) {
   else window.location.reload();
 }
 
-/** Floating «демо» pill: explains the demo, switches role, resets the demo data. */
+/** Floating «демо» pill: explains the demo, switches restaurant and role, resets the demo data. */
 export default function DemoBar() {
   const [open, setOpen] = useState(false);
   const role = getRole();
+  const restaurant = getRestaurant();
 
   return (
     <div className="fixed right-3 bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))] z-[60] flex flex-col items-end gap-2 desk:right-4 desk:bottom-4">
@@ -29,8 +31,30 @@ export default function DemoBar() {
           className="flex w-72 flex-col gap-3 rounded-ui border border-warn-bg bg-bg-deep p-4 text-sm text-text shadow-lg"
         >
           <p className="m-0">
-            Демо-режим: без сервера, на реальному меню. Прогрес зберігається лише в цьому браузері.
+            Демо-режим: без сервера, на реальному меню закладу. Прогрес зберігається лише в цьому браузері,
+            окремо для кожного закладу.
           </p>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs text-muted">заклад</span>
+            <div className="flex flex-wrap gap-2">
+              {RESTAURANT_IDS.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  aria-pressed={restaurant === id}
+                  className={chipClass(restaurant === id, 'min-h-9 px-3')}
+                  onClick={async () => {
+                    if (id === restaurant) return;
+                    setRestaurant(id);
+                    // the open page may be a dish the other menu doesn't have
+                    await reloadFresh(`${import.meta.env.BASE_URL}menu`);
+                  }}
+                >
+                  {RESTAURANTS[id].name}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="flex flex-col gap-1.5">
             <span className="text-xs text-muted">роль</span>
             <div className="flex gap-2">

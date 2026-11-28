@@ -1,3 +1,4 @@
+import { getBrand } from '@/lib/brand';
 import { cn } from '@/lib/cn';
 import BearMark from './BearMark';
 
@@ -10,11 +11,12 @@ interface LogoProps {
 
 /** Brand lockup: bear + «база знань / ПРОСТО ЛІС». */
 export default function Logo({ size = 'md', stacked = false, className }: LogoProps) {
+  const brand = getBrand();
   return (
     <div
       className={cn('flex items-center gap-2.5', stacked && 'flex-col gap-3 text-center', className)}
       role="img"
-      aria-label="Просто ЛІС — база знань"
+      aria-label={`${brand.name} — база знань`}
     >
       <BearMark className={cn('text-accent', size === 'lg' ? 'h-16 w-[116px]' : 'h-7 w-[52px]')} />
       <div className="leading-tight" aria-hidden="true">
@@ -25,7 +27,7 @@ export default function Logo({ size = 'md', stacked = false, className }: LogoPr
             size === 'lg' ? 'text-2xl' : 'text-lg',
           )}
         >
-          ПРОСТО ЛІС
+          {brand.lockup}
         </span>
       </div>
     </div>
